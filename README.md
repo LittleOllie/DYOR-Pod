@@ -1,36 +1,125 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DYOR Website
 
-## Getting Started
+Production website for **DYOR — Do Your Own Research**, the home of weekly crypto X Spaces and the DYOR Podcast.
 
-First, run the development server:
+Built with Next.js (App Router), TypeScript, and Tailwind CSS.
+
+## Quick start
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3002](http://localhost:3002).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Default port is **3002** (3000 is used by other local apps). Only one `npm run dev` instance can run at a time.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Custom port: `npx next dev -p 3003`
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm run start` | Start production server |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript check |
+| `npm run test` | Vitest unit/component tests |
+| `npm run test:watch` | Vitest watch mode |
+| `npm run test:e2e` | Playwright browser tests |
+| `npm run format` | Prettier format |
+| `npm run format:check` | Prettier check |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Updating content
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+All site content lives in `src/content/`:
 
-## Deploy on Vercel
+- **Shows & schedule** — `src/content/shows.ts`
+- **Hosts** — `src/content/hosts.ts`
+- **Podcast links** — `src/content/podcast.ts`
+- **Site copy & social links** — `src/content/site.ts`
+- **Navigation** — `src/content/navigation.ts`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+See [docs/CONTENT_UPDATE_GUIDE.md](docs/CONTENT_UPDATE_GUIDE.md) for detailed instructions.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Replacing images
+
+Place optimised WebP images in:
+
+- `public/brand/` — logo
+- `public/shows/` — programme artwork
+- `public/hosts/` — host profile photos
+- `public/og/` — social preview (`dyor-social-preview.jpg`, 1200×630)
+
+Run `node scripts/convert-images.mjs` after updating source assets in `/tmp` or adapt the script.
+
+## Newsletter configuration
+
+The newsletter API (`POST /api/newsletter`) requires server-side environment variables:
+
+```env
+NEWSLETTER_PROVIDER=mailchimp
+NEWSLETTER_API_KEY=your-api-key
+NEWSLETTER_LIST_ID=your-list-id
+
+# Or use a custom form endpoint:
+NEWSLETTER_FORM_ENDPOINT=https://your-provider.com/subscribe
+```
+
+Until configured, signup returns an honest 503 error — never a fake success.
+
+Supported providers (adapter extensible): Mailchimp, Kit, Beehiiv, Substack, Brevo, custom endpoint.
+
+## Analytics (optional)
+
+```env
+NEXT_PUBLIC_ANALYTICS_PROVIDER=plausible
+```
+
+Supported: `plausible`, `fathom`, `ga`. No tracking occurs unless configured.
+
+## Environment variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NEWSLETTER_PROVIDER` | No | Newsletter provider name |
+| `NEWSLETTER_API_KEY` | No | Provider API key (server only) |
+| `NEWSLETTER_LIST_ID` | No | Mailing list ID |
+| `NEWSLETTER_FORM_ENDPOINT` | No | Custom subscribe endpoint |
+| `NEXT_PUBLIC_ANALYTICS_PROVIDER` | No | Analytics provider |
+
+Never expose API keys in `NEXT_PUBLIC_*` variables.
+
+## Deployment
+
+See [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md).
+
+Recommended: deploy to [Vercel](https://vercel.com) and connect `www.dyorpod.com`.
+
+```bash
+npm run build
+```
+
+## Project structure
+
+```
+src/
+  app/           # Routes, layout, API
+  components/    # UI components by feature
+  content/       # Editable site content
+  lib/           # Schedule logic, newsletter, analytics
+  types/         # Shared TypeScript types
+docs/            # Owner and deployment guides
+public/          # Static assets
+e2e/             # Playwright tests
+```
+
+## Owner checklist
+
+See [docs/OWNER_CONTENT_CHECKLIST.md](docs/OWNER_CONTENT_CHECKLIST.md) for items needed before launch.
+
+## Design system
+
+See [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md).

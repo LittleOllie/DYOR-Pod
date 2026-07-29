@@ -10,8 +10,15 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
+# testing (legacy root paths — new output goes in DO NOT ADD!/)
 /coverage
+/test-results/
+/playwright-report/
+/blob-report/
+
+# local-only artifacts (README is tracked; everything else is ignored)
+/DO NOT ADD!/*
+!/DO NOT ADD!/README.md
 
 # next.js
 /.next/
