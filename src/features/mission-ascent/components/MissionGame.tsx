@@ -27,6 +27,11 @@ import type {
   PickupFeedbackType,
 } from "@/features/mission-ascent/types/mission.types";
 import { missionConfig } from "@/features/mission-ascent/config/gameConfig";
+import {
+  applyCanvasSize,
+  applyCanvasTransform,
+  isCanvasContainerReady,
+} from "@/features/mission-ascent/utils/canvasSizing";
 import { defaultHudSnapshot } from "@/features/mission-ascent/utils/defaultHud";
 import { getThrottleZone } from "@/features/mission-ascent/utils/math";
 
@@ -128,6 +133,20 @@ export function MissionGame({ mode, onExit, standalone = false }: MissionGamePro
     getBest,
   ]);
 
+  const syncCanvasToContainer = useCallback(() => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    const engine = engineRef.current;
+    if (!canvas || !container) return false;
+
+    const rect = container.getBoundingClientRect();
+    if (!isCanvasContainerReady(rect.width, rect.height)) return false;
+
+    const { cssWidth, cssHeight } = applyCanvasSize(canvas, rect.width, rect.height);
+    engine?.resize(cssWidth, cssHeight);
+    return true;
+  }, []);
+
   const initEngine = useCallback(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -136,12 +155,10 @@ export function MissionGame({ mode, onExit, standalone = false }: MissionGamePro
     const prefs = preferencesRef.current;
     const actions = storageActionsRef.current;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rect = container.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    canvas.style.width = `${rect.width}px`;
-    canvas.style.height = `${rect.height}px`;
+    if (!isCanvasContainerReady(rect.width, rect.height)) return;
+
+    const { cssWidth, cssHeight } = applyCanvasSize(canvas, rect.width, rect.height);
 
     audioRef.current = new AudioManager({ enabled: prefs.audioEnabled });
     hapticsRef.current = new HapticsManager({
@@ -232,8 +249,8 @@ export function MissionGame({ mode, onExit, standalone = false }: MissionGamePro
         mode,
         skipLaunchSequence: prefs.launchSequenceSeen,
         reducedEffects: prefs.reducedEffects,
-        width: rect.width,
-        height: rect.height,
+        width: cssWidth,
+        height: cssHeight,
         previousBest: actions.getBest(mode),
         discoveredEntities: prefs.discoveredEntities,
       },
@@ -249,13 +266,52 @@ export function MissionGame({ mode, onExit, standalone = false }: MissionGamePro
   }, [mode]);
 
   useEffect(() => {
-    initEngine();
+    let cancelled = false;
+    let initRaf = 0;
+
+    const tryInit = () => {
+      if (cancelled) return;
+      const container = containerRef.current;
+      const canvas = canvasRef.current;
+      if (!container || !canvas) return;
+
+      const rect = container.getBoundingClientRect();
+      if (!isCanvasContainerReady(rect.width, rect.height)) {
+        initRaf = requestAnimationFrame(tryInit);
+        return;
+      }
+
+      initEngine();
+    };
+
+    initRaf = requestAnimationFrame(tryInit);
+
     return () => {
+      cancelled = true;
+      cancelAnimationFrame(initRaf);
       engineRef.current?.stop();
+      engineRef.current = null;
       audioRef.current?.dispose();
+      audioRef.current = null;
       if (rafRenderRef.current) cancelAnimationFrame(rafRenderRef.current);
+      rafRenderRef.current = null;
+      setGameReady(false);
     };
   }, [initEngine]);
+
+  useEffect(() => {
+    if (!gameReady) return;
+    const container = containerRef.current;
+    if (!container || typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver(() => {
+      syncCanvasToContainer();
+    });
+    observer.observe(container);
+    syncCanvasToContainer();
+
+    return () => observer.disconnect();
+  }, [gameReady, syncCanvasToContainer]);
 
   useEffect(() => {
     audioRef.current?.setEnabled(preferences.audioEnabled);
@@ -267,42 +323,46 @@ export function MissionGame({ mode, onExit, standalone = false }: MissionGamePro
   }, [preferences.reducedEffects]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const engine = engineRef.current;
-    if (!canvas || !engine || !gameReady) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const dpr = canvas.width / (canvas.clientWidth || 1);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (!gameReady) return;
 
     const render = () => {
-      const activeEngine = engineRef.current;
-      if (!activeEngine) return;
+      try {
+        const canvas = canvasRef.current;
+        const activeEngine = engineRef.current;
+        if (canvas && activeEngine) {
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            applyCanvasTransform(ctx, canvas);
 
-      if (shakeRef.current.intensity > 0) {
-        shakeRef.current.x = (Math.random() - 0.5) * shakeRef.current.intensity * 6;
-        shakeRef.current.y = (Math.random() - 0.5) * shakeRef.current.intensity * 6;
-        shakeRef.current.intensity *= 0.88;
-      } else {
-        shakeRef.current.x = 0;
-        shakeRef.current.y = 0;
+            if (shakeRef.current.intensity > 0) {
+              shakeRef.current.x = (Math.random() - 0.5) * shakeRef.current.intensity * 6;
+              shakeRef.current.y = (Math.random() - 0.5) * shakeRef.current.intensity * 6;
+              shakeRef.current.intensity *= 0.88;
+            } else {
+              shakeRef.current.x = 0;
+              shakeRef.current.y = 0;
+            }
+
+            renderMissionFrame(
+              ctx,
+              activeEngine,
+              shakeRef.current.x,
+              shakeRef.current.y,
+              preferencesRef.current.reducedEffects ? "reduced" : "standard",
+            );
+          }
+        }
+      } catch (error) {
+        console.error("[Mission Ascent] render frame failed", error);
       }
 
-      renderMissionFrame(
-        ctx,
-        activeEngine,
-        shakeRef.current.x,
-        shakeRef.current.y,
-        preferencesRef.current.reducedEffects ? "reduced" : "standard",
-      );
       rafRenderRef.current = requestAnimationFrame(render);
     };
 
     rafRenderRef.current = requestAnimationFrame(render);
     return () => {
       if (rafRenderRef.current) cancelAnimationFrame(rafRenderRef.current);
+      rafRenderRef.current = null;
     };
   }, [gameReady]);
 
@@ -430,7 +490,7 @@ export function MissionGame({ mode, onExit, standalone = false }: MissionGamePro
     >
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 h-full w-full touch-none"
+        className="absolute inset-0 z-0 h-full w-full touch-none"
         onPointerDown={handleCanvasPointerDown}
         onPointerMove={handleCanvasPointerMove}
         onPointerUp={handleCanvasPointerUp}

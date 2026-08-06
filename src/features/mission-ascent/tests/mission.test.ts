@@ -57,6 +57,12 @@ import {
   throttleToHeatGain,
   throttleToScrollMultiplier,
 } from "@/features/mission-ascent/utils/math";
+import {
+  applyCanvasSize,
+  applyCanvasTransform,
+  isCanvasContainerReady,
+  normalizeCanvasCssSize,
+} from "@/features/mission-ascent/utils/canvasSizing";
 import type { WorldEntity } from "@/features/mission-ascent/types/mission.types";
 import {
   CORE_SECTOR_COUNT,
@@ -641,5 +647,63 @@ describe("mission assembly order", () => {
     expect(getNextLogoComponent([])).toBe("d");
     expect(getNextLogoComponent(["d", "y", "o", "r"])).toBeNull();
     expect(isAssemblyComplete(["d", "y", "o", "r"])).toBe(true);
+  });
+});
+
+describe("canvas sizing", () => {
+  it("normalises zero layout to at least 1px", () => {
+    expect(normalizeCanvasCssSize(0, 0)).toEqual({ width: 1, height: 1 });
+    expect(normalizeCanvasCssSize(320.4, 640.6)).toEqual({ width: 320, height: 641 });
+  });
+
+  it("detects when the container is ready for init", () => {
+    expect(isCanvasContainerReady(0, 800)).toBe(false);
+    expect(isCanvasContainerReady(400, 0)).toBe(false);
+    expect(isCanvasContainerReady(400, 800)).toBe(true);
+  });
+
+  it("applies backing store dimensions from css size", () => {
+    const canvas = document.createElement("canvas");
+    const { cssWidth, cssHeight, dpr } = applyCanvasSize(canvas, 400, 800);
+    expect(cssWidth).toBe(400);
+    expect(cssHeight).toBe(800);
+    expect(canvas.width).toBe(Math.round(400 * dpr));
+    expect(canvas.height).toBe(Math.round(800 * dpr));
+    expect(canvas.style.width).toBe("400px");
+    expect(canvas.style.height).toBe("800px");
+  });
+
+  it("sets a non-degenerate canvas transform when 2d context is available", () => {
+    const canvas = document.createElement("canvas");
+    applyCanvasSize(canvas, 400, 800);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      // jsdom may not implement canvas 2d; sizing assertions still cover init safety.
+      expect(canvas.width).toBeGreaterThan(0);
+      expect(canvas.height).toBeGreaterThan(0);
+      return;
+    }
+    applyCanvasTransform(ctx, canvas);
+    expect(ctx.getTransform().a).toBeGreaterThan(0);
+    expect(ctx.getTransform().d).toBeGreaterThan(0);
+  });
+});
+
+describe("multi-sector progression", () => {
+  it("advances through five sectors in endless mode", () => {
+    const manager = new SectorManager("endless");
+    manager.beginSector(0);
+
+    for (let sector = 1; sector <= 5; sector += 1) {
+      expect(manager.state.currentSectorNumber).toBe(sector);
+      manager.onLogoComplete(sector * 1000, 75, 3, 3);
+      manager.tickTransition(sector * 1000 + 600);
+      manager.tickTransition(sector * 1000 + 600 + 2200);
+      manager.tickTransition(sector * 1000 + 600 + 2200 + 1600);
+    }
+
+    expect(manager.state.currentSectorNumber).toBe(6);
+    expect(manager.state.sectorsCompletedThisRun).toBe(5);
+    expect(manager.state.transitionState).toBe("playing");
   });
 });
