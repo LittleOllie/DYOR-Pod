@@ -7,6 +7,7 @@ import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { PodcastFeature } from "@/components/podcast/PodcastFeature";
 import { WeeklySchedule } from "@/components/schedule/WeeklySchedule";
 import { ShowGrid } from "@/components/shows/ShowGrid";
+import { SpacesLibrarySection } from "@/components/library/SpacesLibrarySection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
 import { newsletter } from "@/content/site";
@@ -61,6 +62,15 @@ export default async function HomePage() {
         <RevealOnScroll>
           <SectionHeading title={podcastSection.heading} />
           <PodcastFeature />
+        </RevealOnScroll>
+      </SectionContainer>
+
+      <SectionContainer id="library" ariaLabelledby="library-heading">
+        <h2 id="library-heading" className="sr-only">
+          Spaces Library
+        </h2>
+        <RevealOnScroll>
+          <SpacesLibrarySection />
         </RevealOnScroll>
       </SectionContainer>
 
