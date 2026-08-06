@@ -1,8 +1,6 @@
-import { Apple } from "lucide-react";
+import { ApplePodcastsIcon } from "@/components/brand/ApplePodcastsIcon";
 import { SocialIconLink } from "@/components/ui/SocialIconLink";
 import { cn } from "@/lib/utils/cn";
-
-export const APPLE_PODCASTS_PURPLE = "#9933CC";
 
 type ApplePodcastsSocialLinkProps = {
   href: string;
@@ -16,11 +14,11 @@ export function ApplePodcastsSocialLink({ href, className }: ApplePodcastsSocial
       href={href}
       label="Listen on Apple Podcasts"
       className={cn(
-        "hover:border-[#9933CC] hover:bg-[#9933CC]/10 hover:text-[#9933CC]",
+        "hover:border-brand hover:bg-brand/10",
         className,
       )}
     >
-      <Apple size={22} strokeWidth={2} aria-hidden="true" />
+      <ApplePodcastsIcon size={22} />
     </SocialIconLink>
   );
 }

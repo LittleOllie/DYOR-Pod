@@ -20,6 +20,7 @@ export const xSpaceNote =
 export const hero = {
   eyebrow: "DYOR Mission Control",
   headline: "Crypto conversations worth tuning in for.",
+  headlineAccent: "conversations",
   description:
     "Live crypto news, charts, interviews and independent opinions across weekly X Spaces and the DYOR Podcast.",
   supportingPoints: [
@@ -29,12 +30,71 @@ export const hero = {
   ],
 };
 
-export const about = {
-  heading: "Do Your Own Research",
-  body: "DYOR brings together live crypto news, charts, interviews and independent opinions across recurring X Spaces and the weekly DYOR Podcast. It is a place for thoughtful conversations, different perspectives and staying informed in a fast-moving industry.",
-  disclaimer:
-    "Content shared by DYOR and its guests is provided for entertainment and informational purposes only and does not constitute financial advice. Always do your own research.",
-};
+/** Mobile homepage hero — shorter, editorial copy. Desktop uses `hero`. */
+export const heroMobile = {
+  eyebrow: "Independent crypto conversations",
+  headline: "Crypto conversations worth tuning in for.",
+  headlineAccent: "conversations",
+  description:
+    "Live Spaces, market perspectives and the weekly DYOR Podcast — without the noise.",
+  primaryCta: "See what's next",
+  secondaryCta: "Listen to the podcast",
+} as const;
+
+export const scheduleMobile = {
+  eyebrow: "Weekly lineup",
+  title: "This Week at DYOR",
+  description: "Three conversations. One place to stay informed.",
+} as const;
+
+export const hostsMobile = {
+  eyebrow: "The DYOR team",
+  title: "Meet the Voices Behind DYOR",
+  description: "Independent perspectives from the people behind the weekly conversations.",
+} as const;
+
+export const missionMobile = {
+  eyebrow: "Mission Control",
+  title: "Do Your Own Research",
+  mission:
+    "A live crypto broadcast built to help you think independently, ask better questions and make better long-term decisions.",
+  valuesLine: "Community first. Always bullish. Profits over screenshots.",
+  readMoreLabel: "Read our mission and values",
+} as const;
+
+export const newsletterMobile = {
+  eyebrow: "The weekly briefing",
+} as const;
+
+export const podcastMobile = {
+  eyebrow: "The weekly podcast",
+  highlight: "New episodes every Wednesday",
+} as const;
+
+export const libraryMobile = {
+  eyebrow: "Spaces archive",
+  description: "Replay recorded X Spaces from the DYOR lineup.",
+} as const;
+
+/** Desktop homepage copy — editorial, wider layouts */
+export const scheduleDesktop = {
+  eyebrow: "Weekly programming",
+  title: "This Week at DYOR",
+  description:
+    "Four conversations across the week — live on X and on demand on Spotify.",
+} as const;
+
+export const hostsDesktop = {
+  title: "Meet the Voices Behind DYOR",
+  accent: "DYOR",
+  description:
+    "Three hosts. One team. Independent perspectives on crypto every week.",
+} as const;
+
+export const heroDesktop = {
+  primaryCta: "View next Space",
+  secondaryCta: "Listen to the podcast",
+} as const;
 
 export const newsletter = {
   heading: "Join the DYOR Briefing",

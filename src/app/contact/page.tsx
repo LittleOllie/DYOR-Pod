@@ -4,11 +4,13 @@ import { ContactForm } from "@/components/contact/ContactForm";
 import { ExternalLink } from "@/components/ui/ExternalLink";
 import { contactPage } from "@/content/contact";
 import { site } from "@/content/site";
+import { createPageMetadata } from "@/lib/seo/canonical";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
+  path: "/contact",
   title: "Contact | DYOR",
   description: contactPage.description,
-};
+});
 
 export default function ContactPage() {
   return (
@@ -27,8 +29,7 @@ export default function ContactPage() {
 
       {site.social.x && (
         <p className="mt-3 text-sm text-text-secondary">
-          Prefer X?{" "}
-          <ExternalLink href={site.social.x}>Message @DYORPod</ExternalLink>
+          Prefer X? <ExternalLink href={site.social.x}>Message @DYORPod</ExternalLink>
         </p>
       )}
 

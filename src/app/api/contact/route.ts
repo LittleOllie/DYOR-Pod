@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { submitContactForm } from "@/lib/contact/submit";
+import { checkRateLimit, getClientIdentifier } from "@/lib/security/rateLimit";
 
 const schema = z.object({
   firstName: z.string().min(1, "First name is required."),
@@ -17,8 +18,23 @@ export async function POST(request: Request) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { success: false, message: parsed.error.issues[0]?.message ?? "Invalid input." },
+        {
+          success: false,
+          message: parsed.error.issues[0]?.message ?? "Invalid input.",
+        },
         { status: 400 },
+      );
+    }
+
+    const clientId = getClientIdentifier(request.headers);
+    const rateLimit = await checkRateLimit("contact", clientId, 5, 3600);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Too many messages sent recently. Please try again later.",
+        },
+        { status: 429 },
       );
     }
 

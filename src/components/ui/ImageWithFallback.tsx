@@ -12,6 +12,7 @@ type ImageWithFallbackProps = {
   className?: string;
   priority?: boolean;
   sizes?: string;
+  quality?: number;
   objectFit?: "cover" | "contain";
 };
 
@@ -23,6 +24,7 @@ export function ImageWithFallback({
   className,
   priority,
   sizes,
+  quality = 85,
   objectFit = "cover",
 }: ImageWithFallbackProps) {
   const [error, setError] = useState(false);
@@ -66,6 +68,7 @@ export function ImageWithFallback({
       className={cn(objectFit === "contain" ? "object-contain" : "object-cover", className)}
       priority={priority}
       sizes={sizes}
+      quality={quality}
       onError={() => setError(true)}
     />
   );

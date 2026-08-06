@@ -29,6 +29,7 @@ export function BrandLogo({
   return (
     <Link
       href="/"
+      data-dyor-logo-anchor
       className={cn("inline-flex items-center gap-2.5 focus-ring rounded-md", className)}
       aria-label="DYOR — Do Your Own Research, home"
     >

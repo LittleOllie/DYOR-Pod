@@ -1,0 +1,20 @@
+{
+  "name": "DYOR — Do Your Own Research",
+  "short_name": "DYOR",
+  "description": "Live crypto Spaces, weekly news, and the DYOR Podcast.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#061821",
+  "theme_color": "#061821",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/brand/logo-d.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["news", "entertainment"],
+  "lang": "en-US"
+}

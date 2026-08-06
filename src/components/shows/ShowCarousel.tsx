@@ -1,14 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { ShowIdentityCue } from "@/components/shows/ShowIdentityCue";
 import { SpotifyIcon } from "@/components/brand/SpotifyIcon";
 import { LinkButton } from "@/components/ui/Button";
 import { SpotifyListenButton } from "@/components/ui/SpotifyListenButton";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { StatusPill } from "@/components/ui/StatusPill";
-import { site } from "@/content/site";
 import { getEventStatus } from "@/lib/schedule/getEventStatus";
 import { formatShowSchedule } from "@/lib/schedule/formatEventTime";
+import {
+  getShowCtaLabel,
+  getShowCtaUrl,
+  getShowPlatformLabel,
+  showAccentStyles,
+} from "@/lib/shows/showPresentation";
 import type { Show } from "@/types/content";
 import { cn } from "@/lib/utils/cn";
 import { ChevronLeft, ChevronRight, Radio } from "lucide-react";
@@ -26,12 +32,9 @@ const IMAGE_HEIGHT = "13rem";
 /** Fixed layout — content column (must fit title, copy, schedule, CTA) */
 const CONTENT_HEIGHT = "17.5rem";
 
-const accentLabels: Record<Show["accent"], string> = {
-  teal: "text-brand-bright",
-  gold: "text-gold",
-  cyan: "text-brand-bright",
-  navy: "text-text-secondary",
-};
+const accentLabels = Object.fromEntries(
+  Object.entries(showAccentStyles).map(([key, value]) => [key, value.label]),
+) as Record<Show["accent"], string>;
 
 function subscribeReducedMotion(onChange: () => void) {
   const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -47,13 +50,6 @@ function getReducedMotionServerSnapshot() {
   return true;
 }
 
-function getCtaLabel(show: Show, status: ReturnType<typeof getEventStatus>) {
-  if (status === "live") return "Join Live on X";
-  if (show.platform === "spotify") return "Listen on Spotify";
-  if (status === "schedule-pending") return "Follow on X";
-  return "Find on @DYORPod";
-}
-
 type CarouselSlideProps = {
   show: Show;
   active: boolean;
@@ -62,9 +58,9 @@ type CarouselSlideProps = {
 function CarouselSlidePanel({ show, active }: CarouselSlideProps) {
   const status = getEventStatus(show);
   const accent = accentLabels[show.accent];
-  const ctaUrl =
-    show.xUrl ?? show.spotifyUrl ?? show.appleUrl ?? site.social.x ?? site.social.spotify;
-  const ctaLabel = getCtaLabel(show, status);
+  const ctaUrl = getShowCtaUrl(show);
+  const ctaLabel = getShowCtaLabel(show, status);
+  const platformLabel = getShowPlatformLabel(show);
 
   return (
     <div
@@ -82,7 +78,7 @@ function CarouselSlidePanel({ show, active }: CarouselSlideProps) {
           ) : (
             <SpotifyIcon size={14} className="text-[#1DB954]" />
           )}
-          {show.platform === "x" ? "X Space" : "Spotify Podcast"}
+          {platformLabel}
         </span>
       </div>
 
@@ -138,18 +134,19 @@ function CarouselSlideImage({ show, active }: CarouselSlideProps) {
   return (
     <div
       className={cn(
-        "absolute inset-0 flex items-center justify-center transition-opacity duration-700 ease-out motion-reduce:transition-none",
+        "absolute inset-0 flex items-center justify-center overflow-hidden transition-opacity duration-700 ease-out motion-reduce:transition-none",
         active ? "opacity-100" : "pointer-events-none opacity-0",
       )}
       aria-hidden={!active}
     >
+      <ShowIdentityCue cue={show.identityCue} />
       <ImageWithFallback
         src={show.image}
         alt={active ? `${show.name} — ${show.tagline}` : ""}
         width={imageWidth}
         height={imageHeight}
         objectFit="contain"
-        className="h-full w-full"
+        className="relative z-[1] h-full w-full"
         sizes="176px"
       />
     </div>

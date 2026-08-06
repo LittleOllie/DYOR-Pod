@@ -1,5 +1,8 @@
+import Image from "next/image";
 import { LinkButton } from "@/components/ui/Button";
+import { HostRevealPortrait } from "@/components/hosts/HostRevealPortrait";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import { countdownOSrc, COUNTDOWN_LETTER_CANVAS } from "@/content/brandLogo";
 import type { Host } from "@/types/content";
 
 type HostCardProps = {
@@ -14,25 +17,65 @@ function XIcon() {
   );
 }
 
-export function HostCard({ host }: HostCardProps) {
+function HostPortraitWatermark() {
   return (
-    <article className="group flex flex-col items-center rounded-[var(--radius-xl)] border border-border bg-surface/70 p-6 text-center transition-all duration-[var(--motion-base)] hover:border-brand/30 hover:shadow-[var(--shadow-soft)] focus-within:ring-2 focus-within:ring-brand-bright">
-      <div className="relative mb-5">
-        <div
-          className="orbital-ring absolute -inset-3 scale-110 opacity-40 transition-opacity duration-[var(--motion-base)] group-hover:opacity-70"
-          aria-hidden="true"
-        />
-        <div className="relative h-32 w-32 overflow-hidden rounded-full border-2 border-brand ring-4 ring-brand/10">
-          <ImageWithFallback
-            src={host.image}
-            alt={`${host.name} profile photo`}
-            width={128}
-            height={128}
-            className="h-full w-full object-cover"
-            sizes="128px"
-          />
+    <div
+      className="host-portrait-watermark pointer-events-none absolute inset-0 z-0"
+      aria-hidden="true"
+    >
+      <Image
+        src={countdownOSrc}
+        alt=""
+        width={COUNTDOWN_LETTER_CANVAS.width}
+        height={COUNTDOWN_LETTER_CANVAS.height}
+        className="logo-layer-blend size-full object-contain"
+        sizes="256px"
+      />
+    </div>
+  );
+}
+
+function HostPortraitSection({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative mb-5 flex w-full justify-center md:mb-4">
+      {/* Square portrait zone — room above for hover pop-up without clipping */}
+      <div className="relative size-[16rem] shrink-0 md:overflow-visible">
+        <HostPortraitWatermark />
+        <div className="relative z-10 flex size-full items-center justify-center translate-y-4 md:translate-y-5">
+          {children}
         </div>
       </div>
+    </div>
+  );
+}
+
+export function HostCard({ host }: HostCardProps) {
+  return (
+    <article className="group relative flex h-full min-w-0 flex-col items-center overflow-x-clip md:overflow-visible rounded-[var(--radius-xl)] border border-border bg-surface/70 p-6 pt-8 text-center transition-[border-color,box-shadow] duration-[var(--motion-base)] hover:border-brand/30 hover:shadow-[var(--shadow-soft)] focus-within:ring-2 focus-within:ring-brand-bright md:grid md:grid-rows-[auto_auto_1fr_auto] md:pt-6">
+      {host.fullImage ? (
+        <HostPortraitSection>
+          <HostRevealPortrait host={host} />
+        </HostPortraitSection>
+      ) : (
+        <HostPortraitSection>
+          <div className="relative">
+            <div
+              className="orbital-ring absolute -inset-3 scale-110 opacity-40 transition-opacity duration-[var(--motion-base)] group-hover:opacity-70"
+              aria-hidden="true"
+            />
+            <div className="host-portrait-glow relative h-36 w-36 overflow-hidden rounded-full border-2 border-brand ring-4 ring-brand/10">
+              <ImageWithFallback
+                src={host.image}
+                alt={`${host.name} profile photo`}
+                width={128}
+                height={128}
+                className="h-full w-full object-cover"
+                sizes="128px"
+              />
+            </div>
+          </div>
+        </HostPortraitSection>
+      )}
 
       <h3 className="font-heading text-xl font-bold text-text-primary">{host.name}</h3>
       <p className="mt-1 text-sm font-medium text-brand-bright">{host.role}</p>
@@ -41,13 +84,13 @@ export function HostCard({ host }: HostCardProps) {
       )}
 
       {host.xUrl && (
-        <div className="mt-5 w-full">
+        <div className="mt-5 w-full self-end">
           <LinkButton
             href={host.xUrl}
             variant="secondary"
             size="md"
             external
-            className="min-h-[44px] w-full"
+            className="min-h-[44px] w-full md:mx-auto md:w-auto md:min-w-[10rem] md:px-5"
           >
             <XIcon />
             {host.handle ? `@${host.handle}` : "Follow on X"}

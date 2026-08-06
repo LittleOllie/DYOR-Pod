@@ -1,12 +1,15 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import { LogoIntroGate } from "@/components/brand/LogoIntroSplash";
+import { MissionAscentRoot } from "@/features/mission-ascent/components/MissionAscentRoot";
+import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
-import { MobileActionBar } from "@/components/layout/MobileActionBar";
 import { podcast } from "@/content/podcast";
 import { site } from "@/content/site";
-import { getHeaderState } from "@/lib/schedule/getHeaderState";
+import { getHeaderStateAsync } from "@/lib/schedule/getHeaderState";
+import { AnalyticsScript } from "@/components/analytics/AnalyticsScript";
+import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import "./globals.css";
 
 const inter = Inter({
@@ -29,7 +32,6 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.domain),
   title,
   description,
-  alternates: { canonical: site.domain },
   openGraph: {
     title,
     description,
@@ -48,6 +50,12 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
+  },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "DYOR",
+    statusBarStyle: "black-translucent",
   },
   robots: { index: true, follow: true },
 };
@@ -91,12 +99,12 @@ function JsonLd() {
   );
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { isLive, ctaHref, featuredShow } = getHeaderState();
+  const { isLive, ctaHref, featuredShow } = await getHeaderStateAsync();
 
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} min-h-full`}>
@@ -104,20 +112,27 @@ export default function RootLayout({
         <JsonLd />
       </head>
       <body className="bg-atmosphere min-h-full antialiased">
+        <AnalyticsScript />
+        <ServiceWorkerRegister />
+        <MissionAscentRoot>
+        <div className="bg-grid-shine" aria-hidden="true" />
+        <ScrollToTop />
         <LogoIntroGate />
         <a href="#main-content" className="skip-link">
           Skip to content
         </a>
-        <SiteHeader
-          isLive={isLive}
-          ctaHref={ctaHref}
-          nextEventLabel={featuredShow.name}
-        />
-        <main id="main-content" className="relative flex-1 pb-24 md:pb-0">
-          {children}
-        </main>
-        <MobileActionBar isLive={isLive} ctaHref={ctaHref} />
-        <SiteFooter />
+        <div className="site-shell">
+          <SiteHeader
+            isLive={isLive}
+            ctaHref={ctaHref}
+            nextEventLabel={featuredShow.name}
+          />
+          <main id="main-content" className="relative flex-1 pb-[env(safe-area-inset-bottom)] md:pb-0">
+            {children}
+          </main>
+          <SiteFooter />
+        </div>
+        </MissionAscentRoot>
       </body>
     </html>
   );

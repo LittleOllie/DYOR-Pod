@@ -14,12 +14,6 @@ Object.defineProperty(window, "matchMedia", {
   })),
 });
 
-try {
-  localStorage.setItem("dyor-logo-intro-seen", "true");
-} catch {
-  /* ignore */
-}
-
 afterEach(() => {
   cleanup();
 });

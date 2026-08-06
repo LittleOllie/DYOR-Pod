@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { LinkButton } from "@/components/ui/Button";
 import { MobileNavigation } from "@/components/layout/MobileNavigation";
 import { mainNav } from "@/content/navigation";
+import { isNavItemActive, useActiveNavSection } from "@/lib/navigation/useActiveNavSection";
 import { cn } from "@/lib/utils/cn";
 
 type SiteHeaderProps = {
@@ -15,9 +17,11 @@ type SiteHeaderProps = {
 
 export function SiteHeader({ isLive, ctaHref, nextEventLabel }: SiteHeaderProps) {
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const activeSection = useActiveNavSection();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => setScrolled(window.scrollY > 32);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -29,51 +33,63 @@ export function SiteHeader({ isLive, ctaHref, nextEventLabel }: SiteHeaderProps)
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-[var(--motion-base)]",
+        "site-header sticky top-0 z-50 w-full max-w-full transition-[background-color,border-color,backdrop-filter] duration-[var(--motion-base)] motion-reduce:transition-none",
         "pt-[env(safe-area-inset-top)]",
         scrolled
-          ? "border-b border-border bg-bg-primary/95 backdrop-blur-md"
-          : "bg-bg-primary/80 backdrop-blur-sm md:bg-transparent",
+          ? "border-b border-border/80 bg-bg-primary/92 backdrop-blur-[14px] md:border-border md:bg-bg-primary/95 md:backdrop-blur-md"
+          : "border-b border-transparent bg-transparent md:bg-transparent",
       )}
     >
-      <div className="mx-auto flex h-14 max-w-[var(--content-width)] items-center justify-between gap-2 px-3 md:h-[var(--header-height)] md:gap-4 md:px-6">
-        <BrandLogo variant="header" size="sm" className="shrink-0 [&_img]:max-h-9 md:[&_img]:max-h-14" />
+      <div className="mobile-page-container desktop-container site-header__inner flex h-[3.75rem] min-w-0 items-center justify-between gap-2 md:h-[var(--header-height)] md:gap-4">
+        <BrandLogo variant="header" size="sm" className="site-logo shrink-0 [&_img]:max-h-9 md:[&_img]:max-h-14" />
 
-        {nextEventLabel && (
-          <p
-            className={cn(
-              "hidden min-w-0 truncate text-xs font-medium lg:block",
-              isLive ? "text-live" : "text-text-secondary",
-            )}
-            aria-live="polite"
-          >
-            {isLive ? (
-              <>
-                <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-live align-middle animate-pulse-live" />
-                Live Now
-              </>
-            ) : (
-              <>Next: {nextEventLabel}</>
-            )}
-          </p>
-        )}
+        <div className="hidden min-w-0 flex-1 items-center justify-center gap-6 md:flex">
+          {nextEventLabel && (
+            <p
+              className={cn(
+                "hidden min-w-0 max-w-[14rem] truncate text-xs font-medium lg:block",
+                isLive ? "text-live" : "text-text-secondary",
+              )}
+              aria-live="polite"
+            >
+              {isLive ? (
+                <>
+                  <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-live align-middle animate-pulse-live" />
+                  Live Now
+                </>
+              ) : (
+                <>Next: {nextEventLabel}</>
+              )}
+            </p>
+          )}
 
-        <nav className="hidden md:block" aria-label="Main">
-          <ul className="flex items-center gap-0.5">
-            {mainNav.map((item) => (
-              <li key={item.href}>
-                <a
-                  href={item.href}
-                  className="rounded-md px-3 py-2 text-sm font-medium text-text-secondary transition-colors duration-[var(--motion-fast)] hover:text-brand-bright focus-ring"
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+          <nav className="min-w-0 shrink" aria-label="Main">
+            <ul className="flex items-center gap-0.5">
+              {mainNav.map((item) => {
+                const isActive = isNavItemActive(item.href, activeSection, pathname);
 
-        <div className="flex items-center gap-1.5 md:gap-3">
+                return (
+                  <li key={item.href}>
+                    <a
+                      href={item.href}
+                      aria-current={isActive ? "page" : undefined}
+                      className={cn(
+                        "rounded-md px-3 py-2 text-sm font-medium transition-colors duration-[var(--motion-fast)] focus-ring",
+                        isActive
+                          ? "bg-brand/15 text-brand-bright"
+                          : "text-text-secondary hover:text-brand-bright",
+                      )}
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-1.5 md:gap-3">
           <LinkButton
             href={ctaHref}
             variant={ctaVariant}
@@ -83,11 +99,7 @@ export function SiteHeader({ isLive, ctaHref, nextEventLabel }: SiteHeaderProps)
           >
             {ctaLabel}
           </LinkButton>
-          <MobileNavigation
-            ctaLabel={ctaLabel}
-            ctaHref={ctaHref}
-            ctaVariant={ctaVariant}
-          />
+          <MobileNavigation activeSection={activeSection} />
         </div>
       </div>
     </header>

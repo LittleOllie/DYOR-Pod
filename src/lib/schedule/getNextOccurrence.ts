@@ -17,12 +17,14 @@ export function buildOccurrenceDate(
   show: Show,
   referenceDate: Date,
   dayOffset = 0,
+  startTimeOverride?: string,
 ): Date | null {
-  if (!show.startTime || !show.scheduleConfirmed) return null;
+  const startTime = startTimeOverride ?? show.startTime;
+  if (!startTime || !show.scheduleConfirmed) return null;
 
   const zonedRef = toZonedTime(referenceDate, show.timezone);
   const targetDay = addDays(zonedRef, dayOffset);
-  const { hours, minutes } = parseTime(show.startTime);
+  const { hours, minutes } = parseTime(startTime);
 
   const zonedStart = setSeconds(
     setMinutes(setHours(targetDay, hours), minutes),

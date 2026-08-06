@@ -6,8 +6,14 @@ export const podcast: PodcastConfig = {
   spotifyEmbedUrl:
     "https://open.spotify.com/embed/show/2vjrGgVaLcP1VWJGeKKohf?utm_source=generator&theme=0",
   applePodcastsUrl: "https://podcasts.apple.com/us/podcast/dyor/id1889952204",
-  featuredEpisodeTitle: undefined,
-  featuredEpisodeUrl: undefined,
+  featuredEpisode: {
+    number: 67,
+    title: "DYOR — Ep. 67: Clarification Confirming Crypto Clarity",
+    date: "May 15, 2026",
+    duration: "1:06:51",
+    description:
+      "This Week in Crypto: IT HAPPENED! The Clarity Act has moved out of committee to President Trump's desk.",
+  },
 };
 
 export const podcastSection = {

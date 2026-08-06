@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "live";
@@ -26,15 +26,13 @@ const sizes: Record<ButtonSize, string> = {
   lg: "px-6 py-3 text-base min-h-[48px]",
 };
 
-export function Button({
-  variant = "primary",
-  size = "md",
-  className,
-  children,
-  ...props
-}: ButtonProps) {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { variant = "primary", size = "md", className, children, ...props },
+  ref,
+) {
   return (
     <button
+      ref={ref}
       className={cn(
         "inline-flex items-center justify-center gap-2 rounded-[var(--radius-medium)] transition-colors focus-ring disabled:opacity-50 disabled:pointer-events-none",
         variants[variant],
@@ -46,7 +44,7 @@ export function Button({
       {children}
     </button>
   );
-}
+});
 
 type LinkButtonProps = {
   href: string;

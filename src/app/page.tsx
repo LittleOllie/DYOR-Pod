@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { AboutDYOR } from "@/components/about/AboutDYOR";
 import { HeroSection } from "@/components/hero/HeroSection";
 import { SectionContainer } from "@/components/layout/SectionContainer";
@@ -10,13 +11,24 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
 import { newsletter } from "@/content/site";
 import { podcastSection } from "@/content/podcast";
-import { getHeaderState } from "@/lib/schedule/getHeaderState";
-import { shows } from "@/content/shows";
 import { getEventStatus } from "@/lib/schedule/getEventStatus";
+import { getHeaderStateAsync } from "@/lib/schedule/getHeaderState";
+import { fetchEffectiveShows } from "@/lib/schedule/scheduleStorage";
+import { createPageMetadata } from "@/lib/seo/canonical";
 
-export default function HomePage() {
-  const { featuredShow, startDate } = getHeaderState();
-  const isAnyLive = shows.some((s) => getEventStatus(s) === "live");
+export const metadata: Metadata = createPageMetadata({
+  path: "/",
+  title: "DYOR Podcast | Live Crypto Spaces, News & Opinion",
+  description:
+    "Join DYOR for weekly live crypto conversations on X, market analysis, interviews and the DYOR Podcast on Spotify and Apple Podcasts.",
+});
+
+export default async function HomePage() {
+  const [{ featuredShow, startDate }, shows] = await Promise.all([
+    getHeaderStateAsync(),
+    fetchEffectiveShows(),
+  ]);
+  const isAnyLive = shows.some((show) => getEventStatus(show) === "live");
 
   return (
     <>

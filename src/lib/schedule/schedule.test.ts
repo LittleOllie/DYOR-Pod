@@ -17,6 +17,7 @@ const sundayShow: Show = {
   shortName: "Sunday",
   tagline: "Test",
   description: "Test",
+  identityCue: "briefing",
   dayOfWeek: 0,
   startTime: "16:00",
   timezone: "America/New_York",

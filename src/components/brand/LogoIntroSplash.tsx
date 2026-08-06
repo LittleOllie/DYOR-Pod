@@ -31,19 +31,15 @@ function getReducedMotionServerSnapshot() {
   return false;
 }
 
-function readIntroSeen(): boolean {
-  try {
-    return localStorage.getItem(LOGO_INTRO_STORAGE_KEY) === "true";
-  } catch {
-    return true;
-  }
-}
-
 function preloadLogoAssets() {
   const sources = [...logoLayers.map((layer) => layer.src), logoFinalSrc];
-  sources.forEach((src) => {
-    const img = new window.Image();
-    img.src = src;
+  const idleCallback =
+    window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 200));
+  idleCallback(() => {
+    sources.forEach((src) => {
+      const img = new window.Image();
+      img.src = src;
+    });
   });
 }
 
@@ -130,9 +126,9 @@ export function LogoIntroSplash({ onContinue }: LogoIntroSplashProps) {
 
         <AnimatedDYORLogo phase={effectivePhase} reducedMotion={reducedMotion} />
 
-        <h1 id="logo-intro-title" className="sr-only">
+        <p id="logo-intro-title" className="sr-only">
           DYOR — Do Your Own Research
-        </h1>
+        </p>
 
         <p
           className={cn(
@@ -170,10 +166,24 @@ export function LogoIntroSplash({ onContinue }: LogoIntroSplashProps) {
   );
 }
 
-function subscribeIntroSeen() {
-  return () => {};
+function getIntroSeenSnapshot() {
+  try {
+    return localStorage.getItem(LOGO_INTRO_STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
 }
 
+function getIntroSeenServerSnapshot() {
+  return false;
+}
+
+function subscribeIntroSeen(onChange: () => void) {
+  window.addEventListener("storage", onChange);
+  return () => window.removeEventListener("storage", onChange);
+}
+
+/** Shows the animated DYOR intro once per browser — first visit only. */
 export function LogoIntroGate() {
   const [dismissed, setDismissed] = useState(false);
   const mounted = useSyncExternalStore(
@@ -183,20 +193,20 @@ export function LogoIntroGate() {
   );
   const introSeen = useSyncExternalStore(
     subscribeIntroSeen,
-    readIntroSeen,
-    () => true,
+    getIntroSeenSnapshot,
+    getIntroSeenServerSnapshot,
   );
 
   const handleContinue = useCallback(() => {
     try {
       localStorage.setItem(LOGO_INTRO_STORAGE_KEY, "true");
     } catch {
-      /* ignore */
+      // Private browsing or storage blocked — still dismiss for this session.
     }
     setDismissed(true);
   }, []);
 
-  if (!mounted || introSeen || dismissed) return null;
+  if (!mounted || dismissed || introSeen) return null;
 
   return <LogoIntroSplash onContinue={handleContinue} />;
 }
