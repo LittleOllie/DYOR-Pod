@@ -134,7 +134,7 @@ export function PodcastFeature() {
             style={{ aspectRatio: "1 / 1" }}
           >
             <ImageWithFallback
-              src={podcastShow?.image ?? "/shows/DYORPodcast.png"}
+              src={podcastShow?.image ?? "/shows/dyor-podcast.webp"}
               alt="The DYOR Podcast artwork"
               width={imageWidth}
               height={imageHeight}
@@ -181,7 +181,7 @@ export function PodcastFeature() {
             style={{ aspectRatio: `${imageWidth} / ${imageHeight}` }}
           >
             <ImageWithFallback
-              src={podcastShow?.image ?? "/shows/DYORPodcast.png"}
+              src={podcastShow?.image ?? "/shows/dyor-podcast.webp"}
               alt="The DYOR Podcast artwork"
               width={imageWidth}
               height={imageHeight}
