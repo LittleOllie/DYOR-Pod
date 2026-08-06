@@ -55,6 +55,28 @@ export function drawTransientEffects(
         }
         break;
       }
+      case "damage-spark": {
+        const sparkCount =
+          quality === "reduced" || reducedEffects ? 6 : 12;
+        for (let i = 0; i < sparkCount; i += 1) {
+          const a = (i / sparkCount) * Math.PI * 2 + t * 2.4;
+          const dist = effect.radius * (0.35 + t * 1.35);
+          const len = 3 + (1 - t) * 5;
+          ctx.strokeStyle = i % 3 === 0 ? "#ff6b4a" : i % 3 === 1 ? "#ff3b30" : "#ffb347";
+          ctx.lineWidth = 1.5;
+          ctx.globalAlpha = (1 - t) * 0.85;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(a) * dist, Math.sin(a) * dist);
+          ctx.lineTo(Math.cos(a) * (dist + len), Math.sin(a) * (dist + len));
+          ctx.stroke();
+        }
+        ctx.fillStyle = "#ff3b30";
+        ctx.globalAlpha = (1 - t) * 0.35;
+        ctx.beginPath();
+        ctx.arc(0, 0, effect.radius * (0.25 + t * 0.55), 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      }
       case "near-miss": {
         ctx.strokeStyle = missionVisuals.colours.teal;
         ctx.lineWidth = 1.5;

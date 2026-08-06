@@ -30,12 +30,14 @@ function anchorStyle(anchor: LetterAnchor): CSSProperties {
 function AssemblyLetter({
   component,
   collected,
+  missed,
   isNext,
   reducedEffects,
   compact,
 }: {
   component: LogoComponentType;
   collected: boolean;
+  missed: boolean;
   isNext: boolean;
   reducedEffects?: boolean;
   compact?: boolean;
@@ -49,14 +51,17 @@ function AssemblyLetter({
   return (
     <div
       className={cn(
-        "relative shrink-0 overflow-hidden",
-        isNext && !collected && !reducedEffects && "animate-pulse",
+        "relative shrink-0 overflow-hidden rounded-sm",
+        missed && !collected && "ring-1 ring-red-500/70",
+        isNext && !collected && !missed && !reducedEffects && "animate-pulse",
       )}
       style={{ width: slotWidth, height: slotHeight }}
       title={
         collected
           ? `${LOGO_COMPONENT_SHORT[component]} recovered`
-          : `${LOGO_COMPONENT_SHORT[component]} — pending`
+          : missed
+            ? `${LOGO_COMPONENT_SHORT[component]} missed`
+            : `${LOGO_COMPONENT_SHORT[component]} — pending`
       }
     >
       <img
@@ -67,8 +72,10 @@ function AssemblyLetter({
         className="pointer-events-none absolute top-0 h-full w-auto max-w-none select-none"
         style={{
           ...pos,
-          filter: LOGO_LETTER_GHOST_FILTER,
-          opacity: collected ? 0 : LOGO_LETTER_GHOST_OPACITY,
+          filter: missed
+            ? "sepia(1) saturate(6) hue-rotate(-45deg) brightness(0.95)"
+            : LOGO_LETTER_GHOST_FILTER,
+          opacity: collected ? 0 : missed ? 0.72 : LOGO_LETTER_GHOST_OPACITY,
           transition: "opacity 0.35s ease",
         }}
       />
@@ -90,7 +97,12 @@ function AssemblyLetter({
           filter: collected && !reducedEffects ? LOGO_LETTER_FILLED_GLOW : undefined,
         }}
       />
-      {isNext && !collected && (
+      {missed && !collected && (
+        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold uppercase tracking-wider text-red-400/90">
+          ×
+        </span>
+      )}
+      {isNext && !collected && !missed && (
         <span className="absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-brand-bright" />
       )}
     </div>
@@ -99,6 +111,7 @@ function AssemblyLetter({
 
 export function MissionAssemblyHUD({ hud, reducedEffects, compact }: MissionAssemblyHUDProps) {
   const collectedSet = new Set(hud.assemblyCollected);
+  const missedSet = new Set(hud.assemblyMissed);
   const allLocked = hud.assemblyComplete;
   const isCompact = compact ?? false;
 
@@ -138,6 +151,7 @@ export function MissionAssemblyHUD({ hud, reducedEffects, compact }: MissionAsse
               key={component}
               component={component}
               collected={collectedSet.has(component)}
+              missed={missedSet.has(component)}
               isNext={hud.nextComponent === component && !hud.assemblyComplete}
               reducedEffects={reducedEffects}
               compact={isCompact}
@@ -149,7 +163,11 @@ export function MissionAssemblyHUD({ hud, reducedEffects, compact }: MissionAsse
       {!isCompact && (
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 text-center">
           <p className="font-mono text-[10px] tabular-nums text-text-secondary/90 sm:text-xs">
-            {hud.componentsCollected} / {hud.totalComponents} signal components recovered
+            {hud.componentsCollected} recovered
+            {hud.componentsMissed > 0 && (
+              <span className="text-red-400/90"> · {hud.componentsMissed} missed</span>
+            )}{" "}
+            · {hud.totalComponents} components
           </p>
           {hud.nextComponent && !hud.assemblyComplete && (
             <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-bright">

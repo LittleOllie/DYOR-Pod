@@ -83,11 +83,11 @@ function MissionOverlayContent({
         onComplete={handleTransitionComplete}
       />
       <div
-        className="fixed inset-0 z-[240] bg-bg-deep"
+        className="fixed inset-0 z-[240] bg-bg-deep select-none"
         role="dialog"
         aria-modal="true"
         aria-label="DYOR Mission Ascent"
-        style={{ height: "100dvh" }}
+        style={{ height: "100dvh", WebkitUserSelect: "none", WebkitTouchCallout: "none" }}
       >
         {showGame && <MissionGame mode={mode} onExit={onClose} />}
       </div>

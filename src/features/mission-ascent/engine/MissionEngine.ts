@@ -9,7 +9,7 @@ import type {
 } from "@/features/mission-ascent/rendering/types";
 import {
   getNextLogoComponent,
-  isAssemblyComplete,
+  isAssemblyCycleComplete,
   LOGO_COMPONENT_COUNT,
   LOGO_COMPONENT_LABELS,
 } from "@/features/mission-ascent/config/missionAssembly";
@@ -193,6 +193,7 @@ export class MissionEngine {
 
   /** Mission Assembly */
   assemblyCollected: LogoComponentType[] = [];
+  assemblyMissed: LogoComponentType[] = [];
   logoComponentsCollected = 0;
   logoCompletionBonus = 0;
   signalBoostScoreBonus = 0;
@@ -208,6 +209,7 @@ export class MissionEngine {
   completionSlowMoUntil = 0;
   logoCompletionTimeMs: number | null = null;
   pilotControlStartedAt = 0;
+  private wallScrapeCooldownUntil = 0;
 
   overheated = false;
   overheatUntil = 0;
@@ -373,6 +375,7 @@ export class MissionEngine {
     this.runningScore = 0;
     this.highestZoneLabel = "Launch Corridor";
     this.assemblyCollected = [];
+    this.assemblyMissed = [];
     this.logoComponentsCollected = 0;
     this.logoCompletionBonus = 0;
     this.signalBoostScoreBonus = 0;
@@ -445,6 +448,7 @@ export class MissionEngine {
 
   private resetAssemblyForSector(now: number): void {
     this.assemblyCollected = [];
+    this.assemblyMissed = [];
     this.assemblyComplete = false;
     this.assemblyCompleteFlashUntil = 0;
     this.completionSlowMoUntil = 0;
@@ -465,15 +469,16 @@ export class MissionEngine {
   }
 
   private getNextComponent(): LogoComponentType | null {
-    return getNextLogoComponent(this.assemblyCollected);
+    return getNextLogoComponent(this.assemblyCollected, this.assemblyMissed);
   }
 
   private getLogoComponentIndex(): number {
-    return this.assemblyCollected.length;
+    return this.assemblyCollected.length + this.assemblyMissed.length;
   }
 
   private resetAssemblyForNextCycle(now: number): void {
     this.assemblyCollected = [];
+    this.assemblyMissed = [];
     this.assemblyComplete = false;
     this.logoCompletionBonus = 0;
     this.spawnScheduler.logoTelegraphedIndex = -1;
@@ -542,6 +547,7 @@ export class MissionEngine {
       }
       if (transition.runComplete) {
         this.endCause = "mission-run-complete";
+        this.callbacks.onLiveAnnouncement("All 5 sectors cleared — mission complete");
         this.finishMission(true);
         return;
       }
@@ -565,10 +571,9 @@ export class MissionEngine {
     if (this.pilotControlGranted && this.sectorManager.state.transitionState === "playing") {
       this.playElapsed += gameDelta;
       const timerFail = this.sectorManager.tickPlaying(delta, this.assemblyComplete);
-      if (timerFail) {
-        this.endCause = "signal-window-lost";
-        this.finishMission(false);
-        return;
+      if (timerFail && !this.assemblyComplete) {
+        this.autoMissRemainingComponents(now);
+        this.completeAssembly(now);
       }
     } else if (this.pilotControlGranted) {
       this.playElapsed += gameDelta * 0.2;
@@ -683,7 +688,9 @@ export class MissionEngine {
       );
       this.playerVx = steer.vx;
       this.input.setLastSteerDir(steer.lastSteerDir);
+      const prevX = this.playerX;
       this.playerX = clamp(this.playerX + this.playerVx * gameDelta, minPlayerX, maxPlayerX);
+      this.checkWallScrape(prevX, minPlayerX, maxPlayerX, widthScale, now);
     }
 
     const maxVxRef = missionConfig.controls.horizontalMaxSpeed * widthScale;
@@ -791,10 +798,11 @@ export class MissionEngine {
       entity.rotation += entity.rotationSpeed * gameDelta;
     }
 
-    this.hazardsAvoided += deactivateOffscreenEntities(this.entities, this.height);
     if (!inTransition) {
       this.handleCollisions(now);
     }
+    this.checkMissedLogoComponents(now);
+    this.hazardsAvoided += deactivateOffscreenEntities(this.entities, this.height);
     this.updateTransientEffects(now);
     this.spawnExhaust(gameDelta);
 
@@ -950,10 +958,37 @@ export class MissionEngine {
     slot.startTime = performance.now();
     slot.durationMs =
       durationMs ??
-      (kind === "impact"
+      (kind === "impact" || kind === "damage-spark"
         ? missionVisuals.effects.impactFlashMs
         : missionVisuals.effects.pickupRingMs);
     slot.id = this.transientEffectSeq++;
+  }
+
+  private spawnPlayerDamageSparks(now: number, x: number, y: number, side = 0): void {
+    const offsetX = side * 14;
+    this.spawnTransientEffect("damage-spark", x + offsetX, y, 28, "#ff3b30", 380);
+    if (!this.reducedEffects) {
+      this.spawnTransientEffect("impact", x + offsetX * 0.5, y + 4, 22, "#E85D4C", 320);
+    }
+  }
+
+  private checkWallScrape(
+    prevX: number,
+    minX: number,
+    maxX: number,
+    widthScale: number,
+    now: number,
+  ): void {
+    if (now < this.wallScrapeCooldownUntil) return;
+    const threshold = 95 * widthScale;
+    const hitLeft = this.playerX <= minX + 0.5 && this.playerVx < -threshold;
+    const hitRight = this.playerX >= maxX - 0.5 && this.playerVx > threshold;
+    if (!hitLeft && !hitRight) return;
+    if (prevX === this.playerX && Math.abs(this.playerVx) < threshold) return;
+
+    this.wallScrapeCooldownUntil = now + 220;
+    this.spawnPlayerDamageSparks(now, this.playerX, this.playerY, hitLeft ? -1 : 1);
+    if (!this.reducedEffects) this.callbacks.onScreenShake?.(0.22);
   }
 
   private updateTransientEffects(now: number): void {
@@ -991,19 +1026,62 @@ export class MissionEngine {
     this.callbacks.onLogoComponent?.(type);
     this.callbacks.onLiveAnnouncement(`${LOGO_COMPONENT_LABELS[type]} RECOVERED`);
 
-    if (isAssemblyComplete(this.assemblyCollected)) {
+    if (isAssemblyCycleComplete(this.assemblyCollected, this.assemblyMissed)) {
       this.completeAssembly(now);
     }
   }
 
+  private missLogoComponent(type: LogoComponentType, now: number): void {
+    if (this.fuelFailureActive || this.phase === "engine-failure" || this.assemblyComplete) return;
+    if (this.assemblyCollected.includes(type) || this.assemblyMissed.includes(type)) return;
+    const expected = this.getNextComponent();
+    if (expected !== type) return;
+
+    this.assemblyMissed.push(type);
+    this.componentToast = `${LOGO_COMPONENT_LABELS[type]} MISSED`;
+    this.componentToastUntil = now + missionConfig.feedback.zoneToastMs;
+    this.callbacks.onLiveAnnouncement(`${LOGO_COMPONENT_LABELS[type]} MISSED`);
+
+    if (isAssemblyCycleComplete(this.assemblyCollected, this.assemblyMissed)) {
+      this.completeAssembly(now);
+    }
+  }
+
+  private checkMissedLogoComponents(now: number): void {
+    if (this.assemblyComplete || !this.pilotControlGranted) return;
+    const missThreshold = this.height + 72;
+    for (const entity of this.entities) {
+      if (!entity.active || entity.kind !== "logo-component") continue;
+      if (entity.y <= missThreshold) continue;
+      this.missLogoComponent(entity.type as LogoComponentType, now);
+      entity.active = false;
+    }
+  }
+
+  private autoMissRemainingComponents(_now: number): void {
+    let next = this.getNextComponent();
+    while (next) {
+      this.assemblyMissed.push(next);
+      next = this.getNextComponent();
+    }
+  }
+
   private completeAssembly(now: number): void {
+    if (this.assemblyComplete) return;
     this.assemblyComplete = true;
+    const missedCount = this.assemblyMissed.length;
+    const collectedCount = this.assemblyCollected.length;
     const summary = this.sectorManager.onLogoComplete(
       now,
       this.fuel,
       this.integrity,
       missionConfig.initialIntegrity,
     );
+    const collectionRatio = collectedCount / LOGO_COMPONENT_COUNT;
+    const bonusScale =
+      missionConfig.missionAssembly.missedSectorBonusFloor +
+      (1 - missionConfig.missionAssembly.missedSectorBonusFloor) * collectionRatio;
+    summary.sectorBonus = Math.floor(summary.sectorBonus * bonusScale);
     this.logosCompletedThisRun = this.sectorManager.state.sectorsCompletedThisRun;
     this.runningScore += summary.sectorBonus;
     this.logoCompletionBonus += summary.sectorBonus;
@@ -1011,8 +1089,16 @@ export class MissionEngine {
     this.completionSlowMoUntil = now + 550;
     this.assemblyCompleteFlashUntil = now + 1200;
     this.callbacks.onAssemblyComplete?.();
-    this.callbacks.onLiveAnnouncement("DYOR Signal Restored");
-    if (!this.reducedEffects) this.callbacks.onScreenShake?.(0.25);
+    if (missedCount === 0) {
+      this.callbacks.onLiveAnnouncement("DYOR Signal Restored");
+    } else if (collectedCount === 0) {
+      this.callbacks.onLiveAnnouncement("Partial signal restore — all components missed");
+    } else {
+      this.callbacks.onLiveAnnouncement(
+        `Signal restored with ${missedCount} missed component${missedCount > 1 ? "s" : ""}`,
+      );
+    }
+    if (!this.reducedEffects && missedCount === 0) this.callbacks.onScreenShake?.(0.25);
   }
 
   private collectItem(
@@ -1081,6 +1167,7 @@ export class MissionEngine {
     }
 
     this.integrity -= def.damage;
+    this.spawnPlayerDamageSparks(now, this.playerX, this.playerY);
     this.invulnerableUntil = now + missionConfig.collisions.invulnerabilityMs;
     clearHazardsNear(
       this.entities,
@@ -1261,8 +1348,10 @@ export class MissionEngine {
       finaleActive: phase === "finale",
       phase: this.phase,
       assemblyCollected: [...this.assemblyCollected],
+      assemblyMissed: [...this.assemblyMissed],
       nextComponent: this.getNextComponent(),
       componentsCollected: this.assemblyCollected.length,
+      componentsMissed: this.assemblyMissed.length,
       totalComponents: LOGO_COMPONENT_COUNT,
       assemblyComplete: this.assemblyComplete,
       componentToast: this.componentToast,

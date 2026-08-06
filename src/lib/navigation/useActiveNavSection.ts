@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 /** Homepage sections linked from main nav, in scroll order. */
-const HOME_SECTIONS = ["schedule", "podcast", "library", "hosts", "about", "newsletter"] as const;
+const HOME_SECTIONS = ["schedule", "podcast", "library", "hosts", "game", "about", "newsletter"] as const;
 
 const HEADER_OFFSET = 88;
 

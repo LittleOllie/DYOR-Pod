@@ -48,6 +48,11 @@ export function MissionLauncher({ className, compact = false }: MissionLauncherP
       />
 
       <div className={cn("relative flex gap-5", compact ? "flex-col" : "flex-col lg:flex-row lg:items-center lg:justify-between")}>
+        {compact && (
+          <div className="flex justify-center pb-1">
+            <RocketGameMark size={72} className="opacity-95 motion-reduce:animate-none" />
+          </div>
+        )}
         <div className="min-w-0 flex-1">
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-brand-bright">
             Mission Simulator

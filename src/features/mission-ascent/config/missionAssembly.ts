@@ -76,15 +76,33 @@ export function getLetterSourceCrop(
 
 export function getNextLogoComponent(
   collected: readonly LogoComponentType[],
+  missed: readonly LogoComponentType[] = [],
 ): LogoComponentType | null {
   for (const component of LOGO_COMPONENT_ORDER) {
-    if (!collected.includes(component)) return component;
+    if (!collected.includes(component) && !missed.includes(component)) return component;
   }
   return null;
 }
 
 export function isAssemblyComplete(collected: readonly LogoComponentType[]): boolean {
   return LOGO_COMPONENT_ORDER.every((c) => collected.includes(c));
+}
+
+/** All four letters have been collected or missed — sector can advance. */
+export function isAssemblyCycleComplete(
+  collected: readonly LogoComponentType[],
+  missed: readonly LogoComponentType[] = [],
+): boolean {
+  return LOGO_COMPONENT_ORDER.every(
+    (component) => collected.includes(component) || missed.includes(component),
+  );
+}
+
+export function getAssemblyResolvedCount(
+  collected: readonly LogoComponentType[],
+  missed: readonly LogoComponentType[],
+): number {
+  return collected.length + missed.length;
 }
 
 export function getLogoComponentIndex(component: LogoComponentType): number {

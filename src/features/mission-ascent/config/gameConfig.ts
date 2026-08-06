@@ -124,6 +124,8 @@ export const missionConfig = {
     telegraphLeadSeconds: 2.8,
     componentScore: 2000,
     completionBonus: 10000,
+    /** Sector completion bonus scales from this (all missed) to 1.0 (all collected). */
+    missedSectorBonusFloor: 0.45,
     signalBoostDurationMs: 12000,
     signalBoostMultiplier: 3,
     signalBoostScrollBoost: 1.35,

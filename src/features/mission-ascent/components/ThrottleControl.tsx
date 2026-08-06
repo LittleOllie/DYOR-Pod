@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { cn } from "@/lib/utils/cn";
 
 type ThrottleControlProps = {
@@ -86,12 +86,13 @@ export function ThrottleControl({
   return (
     <div
       className={cn(
-        "pointer-events-auto flex rounded-[var(--radius-medium)] border border-brand/25 bg-bg-deep/80 backdrop-blur-sm",
+        "pointer-events-auto flex rounded-[var(--radius-medium)] border border-brand/25 bg-bg-deep/80 backdrop-blur-sm select-none",
         horizontal
-          ? "flex-row items-center gap-2 px-2.5 py-1.5"
+          ? "flex-col items-stretch gap-1.5 px-3 py-2 sm:flex-row sm:items-center sm:gap-2 sm:px-2.5 sm:py-1.5"
           : "flex-col items-center gap-2 p-3",
         className,
       )}
+      style={{ WebkitUserSelect: "none", WebkitTouchCallout: "none" } as CSSProperties}
       role="slider"
       aria-label="Throttle control"
       aria-valuemin={0}
@@ -109,24 +110,54 @@ export function ThrottleControl({
       </p>
 
       {horizontal ? (
-        <div className="flex min-w-[9rem] flex-1 items-center gap-2">
-          <div
-            ref={trackRef}
-            className="relative h-2.5 min-w-[7rem] flex-1 cursor-ew-resize touch-none rounded-full bg-bg-primary/80"
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
-            onPointerCancel={onPointerUp}
-          >
-            <div
-              className={cn("absolute inset-y-0 left-0 rounded-full transition-[width] duration-75", fillClass)}
-              style={{ width: `${value * 100}%` }}
-            />
-          </div>
-          <p className="w-8 shrink-0 font-mono text-[11px] font-bold tabular-nums text-brand-bright">
-            {pct}%
+        <>
+          <p className="text-center text-[9px] font-semibold uppercase tracking-[0.16em] text-text-secondary/75 sm:hidden">
+            Slide bar to set throttle · steer on the playfield
           </p>
-        </div>
+          <div className="flex min-w-0 items-center gap-2">
+            <button
+              type="button"
+              aria-label="Reduce throttle"
+              disabled={disabled}
+              onClick={() => onChange(Math.max(0, value - 0.12))}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-brand/30 bg-bg-primary/80 text-sm font-bold text-brand-bright focus-ring disabled:opacity-40 sm:hidden"
+            >
+              −
+            </button>
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <div
+                ref={trackRef}
+                className="relative flex h-11 min-w-0 flex-1 cursor-ew-resize touch-none items-center rounded-full bg-bg-primary/80 px-1 sm:h-2.5 sm:px-0"
+                onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={onPointerUp}
+                onPointerCancel={onPointerUp}
+              >
+                <div className="relative h-3 w-full rounded-full bg-bg-deep/50 sm:h-full sm:bg-transparent">
+                  <div
+                    className={cn("absolute inset-y-0 left-0 rounded-full transition-[width] duration-75", fillClass)}
+                    style={{ width: `${value * 100}%` }}
+                  />
+                </div>
+              </div>
+              <p className="text-center font-mono text-[10px] font-bold tabular-nums text-brand-bright sm:hidden">
+                {pct}% · {zoneLabel}
+              </p>
+            </div>
+            <button
+              type="button"
+              aria-label="Increase throttle"
+              disabled={disabled}
+              onClick={() => onChange(Math.min(1, value + 0.12))}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-brand/30 bg-bg-primary/80 text-sm font-bold text-brand-bright focus-ring disabled:opacity-40 sm:hidden"
+            >
+              +
+            </button>
+            <p className="hidden w-8 shrink-0 font-mono text-[11px] font-bold tabular-nums text-brand-bright sm:block">
+              {pct}%
+            </p>
+          </div>
+        </>
       ) : (
         <>
           <div

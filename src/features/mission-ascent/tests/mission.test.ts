@@ -10,6 +10,7 @@ import { seededUnit } from "@/features/mission-ascent/rendering/shared/seededVis
 import {
   getNextLogoComponent,
   isAssemblyComplete,
+  isAssemblyCycleComplete,
   LOGO_COMPONENT_ORDER,
 } from "@/features/mission-ascent/config/missionAssembly";
 import {
@@ -344,9 +345,22 @@ describe("mission assembly", () => {
     expect(getNextLogoComponent([...LOGO_COMPONENT_ORDER])).toBeNull();
   });
 
+  it("skips missed components when finding the next letter", () => {
+    expect(getNextLogoComponent([], ["d"])).toBe("y");
+    expect(getNextLogoComponent(["d"], ["o"])).toBe("y");
+    expect(getNextLogoComponent(["d", "r"], ["y", "o"])).toBeNull();
+  });
+
   it("detects assembly completion", () => {
     expect(isAssemblyComplete(["d", "y", "o"])).toBe(false);
     expect(isAssemblyComplete(["d", "y", "o", "r"])).toBe(true);
+  });
+
+  it("detects cycle completion when letters are collected or missed", () => {
+    expect(isAssemblyCycleComplete(["d", "y", "o", "r"], [])).toBe(true);
+    expect(isAssemblyCycleComplete(["d"], ["y", "o", "r"])).toBe(true);
+    expect(isAssemblyCycleComplete([], ["d", "y", "o", "r"])).toBe(true);
+    expect(isAssemblyCycleComplete(["d", "y"], ["o"])).toBe(false);
   });
 
   it("schedules logo spawn windows", () => {
@@ -647,6 +661,7 @@ describe("mission assembly order", () => {
     expect(getNextLogoComponent([])).toBe("d");
     expect(getNextLogoComponent(["d", "y", "o", "r"])).toBeNull();
     expect(isAssemblyComplete(["d", "y", "o", "r"])).toBe(true);
+    expect(isAssemblyCycleComplete(["d", "y"], ["o", "r"])).toBe(true);
   });
 });
 

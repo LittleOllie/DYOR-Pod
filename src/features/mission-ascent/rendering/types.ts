@@ -22,7 +22,12 @@ export type EntityDrawContext = {
   reducedEffects?: boolean;
 };
 
-export type TransientEffectKind = "pickup" | "impact" | "near-miss" | "target-lock";
+export type TransientEffectKind =
+  | "pickup"
+  | "impact"
+  | "damage-spark"
+  | "near-miss"
+  | "target-lock";
 
 export type TransientEffect = {
   id: number;

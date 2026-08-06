@@ -192,8 +192,10 @@ export type HudSnapshot = {
   phase: GamePhase;
   /** Mission Assembly — DYOR signal rebuild */
   assemblyCollected: LogoComponentType[];
+  assemblyMissed: LogoComponentType[];
   nextComponent: LogoComponentType | null;
   componentsCollected: number;
+  componentsMissed: number;
   totalComponents: number;
   assemblyComplete: boolean;
   componentToast: string | null;

@@ -7,13 +7,13 @@ export function AboutDYOR() {
     <>
       <MobileMissionSummary />
 
-      <div className="mt-8 md:hidden">
+      <div className="mt-8 md:hidden" id="game">
         <MissionLauncher compact />
       </div>
 
       <div className="hidden md:block">
         <DesktopMissionPanel />
-        <div className="mt-12 lg:mt-16">
+        <div className="mt-12 lg:mt-16" id="game">
           <MissionLauncher />
         </div>
       </div>

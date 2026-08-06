@@ -12,8 +12,16 @@ const END_CAUSE_LABELS: Record<MissionDebrief["endCause"], string> = {
   "hull-lost": "Hull integrity lost",
   abandoned: "Mission abandoned",
   "signal-window-lost": "Signal window lost",
-  "mission-run-complete": "Mission run complete",
+  "mission-run-complete": "All 5 sectors cleared",
 };
+
+function getDebriefTitle(endCause: MissionDebrief["endCause"]): string {
+  if (endCause === "mission-run-complete" || endCause === "timed-complete") {
+    return "Mission complete";
+  }
+  if (endCause === "abandoned") return "Mission ended";
+  return "Mission terminated";
+}
 
 type MissionDebriefPanelProps = {
   debrief: MissionDebrief;
@@ -52,12 +60,18 @@ export function MissionDebriefPanel({
           </p>
         )}
         <h2 id="debrief-title" className="mt-2 text-center font-heading text-2xl font-bold text-text-primary">
-          Mission terminated
+          {getDebriefTitle(debrief.endCause)}
         </h2>
         <p className="mt-1 text-center text-xs uppercase tracking-widest text-text-secondary/60">
-          {debrief.mode === "timed" ? "Mission run" : "Endless transmission"} ·{" "}
+          {debrief.mode === "timed" ? "Timed run" : "Endless run"} ·{" "}
           {END_CAUSE_LABELS[debrief.endCause]}
         </p>
+        {(debrief.endCause === "mission-run-complete" ||
+          debrief.endCause === "timed-complete") && (
+          <p className="mt-2 text-center text-sm text-brand-bright/90">
+            You cleared every sector in this run. Switch to Endless mode to keep flying.
+          </p>
+        )}
 
         <p className="mt-4 text-center text-sm leading-relaxed text-text-secondary">{debrief.assessment}</p>
         <p className="mt-1 text-center text-[10px] uppercase tracking-wider text-brand/70">

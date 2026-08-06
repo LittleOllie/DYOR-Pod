@@ -5,6 +5,7 @@ export const mainNav: NavItem[] = [
   { label: "Podcast", href: "/#podcast" },
   { label: "Library", href: "/#library" },
   { label: "Hosts", href: "/#hosts" },
+  { label: "Game", href: "/#game" },
   { label: "Mission Control", href: "/#about" },
   { label: "Join", href: "/#newsletter" },
   { label: "Contact", href: "/contact" },
@@ -17,6 +18,7 @@ export const mobileNav: NavItem[] = [
   { label: "Podcast", href: "/#podcast" },
   { label: "Spaces Library", href: "/#library" },
   { label: "Hosts", href: "/#hosts" },
+  { label: "Game", href: "/#game" },
   { label: "Mission", href: "/#about" },
   { label: "Contact", href: "/contact" },
   { label: "Join the Briefing", href: "/#newsletter" },
@@ -43,6 +45,7 @@ export const footerLinkGroups: { title: string; items: NavItem[] }[] = [
       { label: "Podcast", href: "/#podcast" },
       { label: "Library", href: "/#library" },
       { label: "Hosts", href: "/#hosts" },
+      { label: "Game", href: "/#game" },
     ],
   },
   {

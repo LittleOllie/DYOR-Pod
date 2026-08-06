@@ -485,12 +485,18 @@ export function MissionGame({ mode, onExit, standalone = false }: MissionGamePro
   return (
     <div
       ref={containerRef}
-      className="relative h-full w-full touch-none overflow-hidden bg-bg-deep"
-      style={{ height: standalone ? "100dvh" : "100%", touchAction: "none" }}
+      className="relative h-full w-full touch-none select-none overflow-hidden bg-bg-deep"
+      style={{
+        height: standalone ? "100dvh" : "100%",
+        touchAction: "none",
+        WebkitUserSelect: "none",
+        WebkitTouchCallout: "none",
+        userSelect: "none",
+      }}
     >
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 z-0 h-full w-full touch-none"
+        className="absolute inset-0 z-0 h-full w-full touch-none select-none"
         onPointerDown={handleCanvasPointerDown}
         onPointerMove={handleCanvasPointerMove}
         onPointerUp={handleCanvasPointerUp}
