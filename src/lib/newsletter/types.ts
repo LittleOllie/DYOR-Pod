@@ -1,3 +1,5 @@
+import { isKvConfigured } from "@/lib/admin/config";
+
 export type NewsletterProvider = "mailchimp" | "kit" | "beehiiv" | "substack" | "brevo" | "custom";
 
 export type SubscribePayload = {
@@ -26,8 +28,12 @@ export function getNewsletterConfig(): NewsletterConfig {
   };
 }
 
-export function isNewsletterConfigured(): boolean {
+export function hasExternalNewsletterProvider(): boolean {
   const config = getNewsletterConfig();
   if (config.formEndpoint) return true;
   return Boolean(config.provider && config.apiKey && config.listId);
+}
+
+export function isNewsletterConfigured(): boolean {
+  return isKvConfigured() || hasExternalNewsletterProvider();
 }

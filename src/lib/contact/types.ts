@@ -1,3 +1,5 @@
+import { isKvConfigured } from "@/lib/admin/config";
+
 export type ContactPayload = {
   firstName: string;
   lastName: string;
@@ -22,7 +24,11 @@ export function getContactConfig(): ContactConfig {
   };
 }
 
-export function isContactConfigured(): boolean {
+export function hasExternalContactEndpoint(): boolean {
   const config = getContactConfig();
   return Boolean(config.formEndpoint || config.webhookUrl);
+}
+
+export function isContactConfigured(): boolean {
+  return isKvConfigured() || hasExternalContactEndpoint();
 }
