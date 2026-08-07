@@ -41,7 +41,7 @@ export const hosts: Host[] = [
     role: "DYOR Host",
     image: "/hosts/MJPfp.jpg",
     fullImage: "/hosts/MJFull.png",
-    portraitBackground: "#7c6cf0",
+    portraitBackground: "#1c889d",
     xUrl: "https://x.com/skizdidlyidler",
     displayOrder: 4,
   },

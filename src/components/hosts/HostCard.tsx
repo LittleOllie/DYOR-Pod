@@ -50,7 +50,9 @@ function HostPortraitSection({ children }: { children: ReactNode }) {
         }
       >
         <HostPortraitWatermark />
-        <div className="absolute inset-0 z-10 flex items-center justify-center">{children}</div>
+        <div className="absolute inset-0 z-10 flex translate-y-3 items-center justify-center md:translate-y-3.5">
+          {children}
+        </div>
       </div>
     </div>
   );
