@@ -234,6 +234,14 @@ h6 {
   box-shadow: 0 0 0 2px rgba(49, 209, 198, 0.35);
 }
 
+@media (min-width: 768px) {
+  footer .footer-link {
+    min-height: 2rem;
+    padding-top: 0.125rem;
+    padding-bottom: 0.125rem;
+  }
+}
+
 .bg-atmosphere {
   position: relative;
   background-color: transparent;

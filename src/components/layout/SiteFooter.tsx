@@ -4,7 +4,7 @@ import { ApplePodcastsSocialLink } from "@/components/ui/ApplePodcastsSocialLink
 import { SpotifySocialLink } from "@/components/ui/SpotifySocialLink";
 import { SocialIconLink } from "@/components/ui/SocialIconLink";
 import { footerLinkGroups } from "@/content/navigation";
-import { newsletter, site, footer as footerContent } from "@/content/site";
+import { site, footer as footerContent } from "@/content/site";
 import { Mail } from "lucide-react";
 
 function XIcon() {
@@ -51,53 +51,23 @@ export function SiteFooter() {
           {footerContent.eyebrow}
         </p>
 
-        <div className="flex flex-col gap-8 md:gap-10 lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.2fr)_minmax(0,0.9fr)] lg:items-start lg:gap-12 xl:gap-16">
+        <div className="flex flex-col gap-8 md:gap-10 lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.2fr)] lg:items-start lg:gap-12 xl:gap-16">
           {/* Brand + social (mobile + desktop left) */}
           <div className="flex flex-col items-center gap-4 text-center md:items-start md:text-left">
             <BrandLogo size="sm" className="mx-auto md:mx-0" />
             <p className="max-w-xs font-heading text-lg font-semibold leading-snug text-text-primary lg:text-xl">
               {footerContent.tagline}
             </p>
-            <div className="md:hidden">
-              <FooterSocialLinks />
-            </div>
-            <div className="hidden md:block">
-              <FooterSocialLinks />
-            </div>
+            <FooterSocialLinks />
           </div>
 
-          {/* Navigation */}
-          <nav aria-label="Footer navigation" className="w-full max-w-sm mx-auto md:mx-0 md:max-w-none">
-            <div className="flex flex-col gap-5 border-t border-border/60 pt-6 md:hidden">
+          {/* Navigation — three columns side by side instead of a long vertical stack */}
+          <nav aria-label="Footer navigation" className="w-full border-t border-border/60 pt-6 md:border-t-0 md:pt-0">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 md:gap-x-10 lg:gap-x-14">
               {footerLinkGroups.map((group) => (
                 <div key={group.title}>
-                  <p className="footer-nav-label">{group.title}</p>
-                  <ul
-                    className={
-                      group.items.length > 2
-                        ? "mt-2 grid grid-cols-2 gap-x-6 gap-y-0.5"
-                        : "mt-2 flex flex-wrap gap-x-6 gap-y-0.5"
-                    }
-                  >
-                    {group.items.map((item) => (
-                      <li key={item.href + item.label}>
-                        <Link href={item.href} className="footer-link">
-                          {item.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-
-            <div className="hidden md:grid md:grid-cols-2 md:gap-x-10 md:gap-y-0.5 lg:gap-x-12">
-              {footerLinkGroups.map((group) => (
-                <div key={group.title} className="mb-6 last:mb-0">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-brand/80">
-                    {group.title}
-                  </p>
-                  <ul className="space-y-0.5">
+                  <p className="footer-nav-label mb-2">{group.title}</p>
+                  <ul>
                     {group.items.map((item) => (
                       <li key={item.href + item.label}>
                         <Link href={item.href} className="footer-link">
@@ -110,39 +80,6 @@ export function SiteFooter() {
               ))}
             </div>
           </nav>
-
-          {/* Newsletter reminder — desktop right column */}
-          <div className="hidden flex-col gap-4 lg:flex">
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-brand/80">
-              Stay informed
-            </p>
-            <p className="text-base leading-relaxed text-text-secondary">
-              {newsletter.description}
-            </p>
-            <Link
-              href="/#newsletter"
-              className="inline-flex min-h-[44px] items-center text-sm font-medium text-brand-bright underline-offset-4 hover:underline focus-ring"
-            >
-              Join the DYOR Briefing →
-            </Link>
-            <ul className="mt-2 space-y-0.5 border-t border-border/40 pt-4">
-              <li>
-                <Link href="/legal?tab=privacy" className="footer-link">
-                  Privacy
-                </Link>
-              </li>
-              <li>
-                <Link href="/legal?tab=terms" className="footer-link">
-                  Terms
-                </Link>
-              </li>
-              <li>
-                <Link href="/legal?tab=disclaimer" className="footer-link">
-                  Disclaimer
-                </Link>
-              </li>
-            </ul>
-          </div>
         </div>
 
         <div className="mt-8 border-t border-border/60 pt-6 text-center text-sm text-text-secondary md:mt-12 lg:mt-14">
