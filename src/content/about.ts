@@ -1,12 +1,11 @@
 /** DYOR mission section — single source for About / Core Values content. */
 
 export const aboutSection = {
-  eyebrow: "Mission Control",
   moduleId: "MOD-04",
   heading: "Do Your Own Research",
   headingAccent: "Own Research",
   mission:
-    "A live crypto broadcast — weekly X Spaces and the DYOR Podcast — built to help you think independently, ask better questions and make better long-term decisions.",
+    "Weekly X Spaces and the DYOR Podcast — built to help you think independently, ask better questions and make better long-term decisions.",
   principlesLabel: "Principles",
   valuesLabel: "Values",
   brandStatement: [

@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { MobileSectionHeader } from "@/components/mobile/MobileSectionHeader";
-import { HeadingWithAccent } from "@/components/ui/ColorfulAccent";
-import { newsletter as newsletterContent, newsletterMobile } from "@/content/site";
+import { newsletter as newsletterContent } from "@/content/site";
 import { trackEvent } from "@/lib/analytics/trackEvent";
 import { cn } from "@/lib/utils/cn";
 
@@ -53,17 +51,6 @@ function NewsletterFormFields({
           onChange={(e) => setHoneypot(e.target.value)}
         />
       </div>
-
-      {!isDesktop && (
-        <>
-          <p className="mb-4 hidden text-base leading-relaxed text-text-secondary md:block">
-            {newsletterContent.description}
-          </p>
-          <p className="mb-4 text-[15px] leading-[1.6] text-text-secondary md:hidden">
-            {newsletterContent.description}
-          </p>
-        </>
-      )}
 
       <label
         htmlFor={`newsletter-email-${layout}`}
@@ -208,12 +195,6 @@ export function NewsletterSignup() {
 
   return (
     <div>
-      <MobileSectionHeader
-        eyebrow={newsletterMobile.eyebrow}
-        title={newsletterContent.heading}
-        className="md:hidden"
-      />
-
       {/* Mobile */}
       <div className="mx-auto max-w-lg md:hidden">
         {state === "success" ? (
@@ -232,39 +213,22 @@ export function NewsletterSignup() {
         )}
       </div>
 
-      {/* Desktop full-width band content */}
-      <div className="newsletter-inner hidden min-w-0 md:grid md:grid-cols-1 md:gap-8 min-[1151px]:grid-cols-[minmax(320px,0.8fr)_minmax(520px,1.2fr)] min-[1151px]:items-center min-[1151px]:gap-[clamp(3rem,7vw,7.5rem)]">
-        <div className="max-w-xl min-[1151px]:max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brand">
-            The weekly briefing
-          </p>
-          <h2 className="mt-3 font-heading text-4xl font-bold leading-[1.08] text-text-primary lg:text-5xl xl:text-[3.25rem]">
-            <HeadingWithAccent
-              title={newsletterContent.heading}
-              accent="DYOR Briefing"
-            />
-          </h2>
-          <p className="mt-5 text-lg leading-relaxed text-text-secondary lg:text-xl">
-            {newsletterContent.description}
-          </p>
-        </div>
-
-        <div className="min-w-0">
-          {state === "success" ? (
-            successBlock
-          ) : (
-            <NewsletterFormFields
-              email={email}
-              setEmail={setEmail}
-              honeypot={honeypot}
-              setHoneypot={setHoneypot}
-              state={state}
-              errorMessage={errorMessage}
-              onSubmit={handleSubmit}
-              layout="desktop"
-            />
-          )}
-        </div>
+      {/* Desktop */}
+      <div className="newsletter-inner mx-auto hidden min-w-0 max-w-2xl md:block">
+        {state === "success" ? (
+          successBlock
+        ) : (
+          <NewsletterFormFields
+            email={email}
+            setEmail={setEmail}
+            honeypot={honeypot}
+            setHoneypot={setHoneypot}
+            state={state}
+            errorMessage={errorMessage}
+            onSubmit={handleSubmit}
+            layout="desktop"
+          />
+        )}
       </div>
     </div>
   );

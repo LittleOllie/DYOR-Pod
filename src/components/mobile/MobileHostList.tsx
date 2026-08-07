@@ -14,6 +14,7 @@ const hostSpecialisms: Record<string, string> = {
   dw: "Markets and technical analysis",
   "petey-k": "Crypto news and community",
   janner: "Long-form conversations and interviews",
+  mj: "Research, building and community",
 };
 
 type MobileHostRowProps = {

@@ -24,7 +24,6 @@ export function MobileMissionSummary() {
     <div className="md:hidden">
       <MobileSectionHeader
         id="about-heading"
-        eyebrow={missionMobile.eyebrow}
         title={missionMobile.title}
         accent="Own Research"
       />

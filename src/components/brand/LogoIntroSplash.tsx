@@ -11,6 +11,7 @@ import {
   logoLayers,
   type LogoIntroPhase,
 } from "@/content/brandLogo";
+import { siteTagline } from "@/content/site";
 import { cn } from "@/lib/utils/cn";
 
 type LogoIntroSplashProps = {
@@ -136,13 +137,13 @@ export function LogoIntroSplash({ onContinue }: LogoIntroSplashProps) {
             effectiveShowActions ? "opacity-100" : "opacity-0",
           )}
         >
-          Live crypto conversations, weekly Spaces and the DYOR Podcast.
+          {siteTagline}
         </p>
 
         <div
           ref={continueRef}
           className={cn(
-            "mt-8 flex flex-col items-center gap-3 transition-opacity duration-500",
+            "mt-8 transition-opacity duration-500",
             effectiveShowActions ? "opacity-100" : "pointer-events-none opacity-0",
           )}
         >
@@ -153,13 +154,6 @@ export function LogoIntroSplash({ onContinue }: LogoIntroSplashProps) {
           >
             Continue
           </Button>
-          <button
-            type="button"
-            onClick={handleContinue}
-            className="text-sm text-text-secondary underline-offset-4 hover:text-brand-bright hover:underline focus-ring rounded-sm"
-          >
-            Skip intro
-          </button>
         </div>
       </div>
     </div>

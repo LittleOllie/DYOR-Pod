@@ -78,7 +78,9 @@ import {
   applyDebriefToStorage,
   defaultMissionStorage,
   parseMissionStorage,
+  resolveMissionStorageKey,
 } from "@/features/mission-ascent/utils/storage";
+import { MISSION_STORAGE_KEY } from "@/features/mission-ascent/types/mission.types";
 
 describe("throttle mapping", () => {
   it("maps low throttle to lower scroll multiplier", () => {
@@ -565,6 +567,12 @@ describe("storage", () => {
     expect(storage.records.totalSignalsRestored).toBe(4);
     expect(storage.records.highestSectorReached).toBe(5);
     expect(storage.records.fastestSectorCompletionMs).toBe(48000);
+  });
+
+  it("uses a localhost-specific storage key for local dev scoring", () => {
+    expect(resolveMissionStorageKey("localhost")).toBe(`${MISSION_STORAGE_KEY}:local`);
+    expect(resolveMissionStorageKey("127.0.0.1")).toBe(`${MISSION_STORAGE_KEY}:local`);
+    expect(resolveMissionStorageKey("www.dyorpod.com")).toBe(MISSION_STORAGE_KEY);
   });
 });
 

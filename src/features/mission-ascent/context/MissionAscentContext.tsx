@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { reloadMissionStorageFromDisk } from "@/features/mission-ascent/hooks/useMissionStorage";
 import type { GameMode } from "@/features/mission-ascent/types/mission.types";
 
 type MissionAscentContextValue = {
@@ -34,6 +35,7 @@ export function MissionAscentProvider({ children }: { children: ReactNode }) {
   const launchButtonRef = useRef<HTMLButtonElement>(null);
 
   const openMission = useCallback((nextMode: GameMode, nextSource: "homepage" | "route" = "homepage") => {
+    reloadMissionStorageFromDisk();
     setScrollY(window.scrollY);
     setModeState(nextMode);
     setSource(nextSource);

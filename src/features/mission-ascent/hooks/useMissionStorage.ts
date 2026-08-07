@@ -38,6 +38,13 @@ function persist(next: MissionStorageSchema) {
   notify();
 }
 
+/** Re-read persisted scores from disk — call when opening the game overlay. */
+export function reloadMissionStorageFromDisk(): void {
+  if (typeof window === "undefined") return;
+  cached = readMissionStorage();
+  notify();
+}
+
 export function useMissionStorage() {
   const storage = useSyncExternalStore(subscribe, getSnapshot, () => defaultMissionStorage);
 

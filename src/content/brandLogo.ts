@@ -4,7 +4,7 @@ export const LOGO_CANVAS = {
   height: 753,
 } as const;
 
-/** Persisted after the visitor completes or skips the logo intro once. */
+/** Persisted after the visitor completes the logo intro once. */
 export const LOGO_INTRO_STORAGE_KEY = "dyor-logo-intro-seen";
 
 export type LogoLayerId = "flame" | "d" | "y" | "o" | "r" | "rocket";

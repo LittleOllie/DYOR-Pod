@@ -31,13 +31,9 @@ export function HeroSection({ featuredShow, startDate, isAnyLive }: HeroSectionP
         <div className="flex min-w-0 flex-col gap-8 pt-11 pb-10 md:gap-14 lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-center lg:gap-12 xl:gap-16 lg:pt-4 lg:pb-8">
           <div className="flex min-w-0 flex-col gap-5 lg:gap-7">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand md:text-sm md:tracking-[0.2em]">
-                <span className="md:hidden">{heroMobile.eyebrow}</span>
-                <span className="hidden md:inline">{hero.eyebrow}</span>
-              </p>
               <h1
                 id="hero-heading"
-                className="mt-3 font-heading text-[2.375rem] font-bold leading-[1.08] text-text-primary sm:text-4xl md:mt-4 md:text-[3.25rem] md:leading-[1.06] lg:text-[4rem] xl:text-[4.75rem] xl:leading-[1.02]"
+                className="font-heading text-[2.375rem] font-bold leading-[1.08] text-text-primary sm:text-4xl md:text-[3.25rem] md:leading-[1.06] lg:text-[4rem] xl:text-[4.75rem] xl:leading-[1.02]"
               >
                 <span className="md:hidden">
                   <HeadingWithAccent
@@ -53,17 +49,6 @@ export function HeroSection({ featuredShow, startDate, isAnyLive }: HeroSectionP
                 <span className="md:hidden">{heroMobile.description}</span>
                 <span className="hidden md:inline">{hero.description}</span>
               </p>
-            </div>
-
-            <div className="hidden flex-wrap gap-2 md:flex lg:hidden">
-              {hero.supportingPoints.map((point) => (
-                <span
-                  key={point}
-                  className="rounded-full border border-border bg-surface/50 px-3 py-1 text-xs text-text-secondary"
-                >
-                  {point}
-                </span>
-              ))}
             </div>
 
             <div className="flex flex-col gap-3.5 md:flex-row md:items-center md:gap-4">
@@ -92,15 +77,6 @@ export function HeroSection({ featuredShow, startDate, isAnyLive }: HeroSectionP
                 <span aria-hidden="true">→</span>
               </Link>
             </div>
-
-            <ul className="hidden space-y-2.5 lg:block">
-              {hero.supportingPoints.map((point) => (
-                <li key={point} className="flex items-center gap-2.5 text-sm text-text-secondary">
-                  <span className="h-1 w-1 shrink-0 rounded-full bg-brand" aria-hidden="true" />
-                  {point}
-                </li>
-              ))}
-            </ul>
           </div>
 
           <div className="relative lg:justify-self-end lg:w-full lg:max-w-[32rem] xl:max-w-[36rem]">

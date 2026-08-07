@@ -330,13 +330,20 @@ export class MissionEngine {
     }
   }
 
-  restart(mode?: GameMode): void {
+  restart(mode?: GameMode, previousBest?: number): void {
     this.stop();
     if (mode) this.mode = mode;
+    if (previousBest !== undefined) {
+      this.previousBest = previousBest;
+    }
     this.phase = this.launchSequenceSkip ? "playing" : "launch-sequence";
     this.resetState();
     this.start();
     this.callbacks.onPhaseChange(this.phase);
+  }
+
+  setPreviousBest(score: number): void {
+    this.previousBest = score;
   }
 
   abandon(): void {

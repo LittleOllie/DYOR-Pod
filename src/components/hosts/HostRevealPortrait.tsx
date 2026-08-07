@@ -5,8 +5,7 @@ import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import type { Host } from "@/types/content";
 import { cn } from "@/lib/utils/cn";
 
-/** Retina-safe sizes — display is ~144px circle / ~200px full art at 1x. */
-const HOST_AVATAR_SIZES = "(max-width: 767px) 288px, 288px";
+const HOST_AVATAR_SIZES = "(max-width: 767px) 288px, 320px";
 const HOST_FULL_PORTRAIT_SIZES = "(max-width: 767px) 360px, 400px";
 const HOST_PORTRAIT_QUALITY = 92;
 
@@ -14,43 +13,46 @@ type HostRevealPortraitProps = {
   host: Host;
 };
 
-function getFullPortraitClass(hostId: string, revealed: boolean): string {
+function getPopUpPortraitClass(hostId: string, expanded: boolean): string {
   const motionSafe = "motion-reduce:translate-y-0 motion-reduce:group-hover:translate-y-0";
 
   if (hostId === "petey-k") {
     return cn(
-      "top-[-1rem] w-[12.25rem] -translate-x-[calc(50%+0.35rem)]",
-      revealed ? "-translate-y-[6.2rem] md:-translate-y-[3.75rem]" : "translate-y-0",
-      "group-hover:-translate-y-[6.2rem] md:group-hover:-translate-y-[3.75rem]",
+      "top-0 w-[12.5rem] -translate-x-1/2",
+      expanded
+        ? "-translate-y-[6.75rem] md:-translate-y-[5rem]"
+        : "translate-y-3 md:translate-y-3 md:group-hover:-translate-y-[5rem]",
       motionSafe,
     );
   }
 
   if (hostId === "janner") {
     return cn(
-      "top-[-0.42rem] w-[12.62rem] -translate-x-1/2",
-      revealed ? "-translate-y-[6.95rem] md:-translate-y-[4rem]" : "translate-y-0",
-      "group-hover:-translate-y-[6.95rem] md:group-hover:-translate-y-[4rem]",
+      "top-0 w-[13rem] -translate-x-1/2",
+      expanded
+        ? "-translate-y-[7.25rem] md:-translate-y-[5.25rem]"
+        : "translate-y-3 md:translate-y-3 md:group-hover:-translate-y-[5.25rem]",
       motionSafe,
     );
   }
 
   return cn(
-    "top-[-0.35rem] w-[10.5rem] -translate-x-1/2",
-    revealed ? "-translate-y-[5.8rem] md:-translate-y-[3.5rem]" : "translate-y-0",
-    "group-hover:-translate-y-[5.8rem] md:group-hover:-translate-y-[3.5rem]",
+    "top-0 w-[11.5rem] -translate-x-1/2",
+    expanded
+      ? "-translate-y-[6.25rem] md:-translate-y-[4.75rem]"
+      : "translate-y-3 md:translate-y-3 md:group-hover:-translate-y-[4.75rem]",
     motionSafe,
   );
 }
 
 /**
- * Fixed-size portrait slot. Mobile: webp PFP at rest, full character pops up on tap.
- * Desktop: full character cropped in circle at rest, slides up on hover.
+ * NFT-style PFP at rest; full character pops up on hover (desktop) or tap (mobile).
  */
 export function HostRevealPortrait({ host }: HostRevealPortraitProps) {
   const [revealed, setRevealed] = useState(false);
   const background = host.portraitBackground ?? "#189e97";
   const fullSrc = host.fullImage ?? host.image;
+  const expanded = revealed;
 
   const toggleReveal = useCallback(() => {
     setRevealed((current) => !current);
@@ -59,44 +61,43 @@ export function HostRevealPortrait({ host }: HostRevealPortraitProps) {
   return (
     <div
       className={cn(
-        "relative h-36 w-36 shrink-0 overflow-visible",
-        "max-md:pt-[5.75rem] max-md:-mt-[5.75rem]",
-        revealed && "z-30",
+        "relative h-[var(--host-pfp-size,10rem)] w-[var(--host-pfp-size,10rem)] shrink-0 overflow-visible",
+        expanded && "z-30",
         "group-hover:z-30",
       )}
     >
-      {/* Fixed circle + glow — stays put while the character rises in front */}
       <div
         className="host-portrait-glow pointer-events-none absolute inset-0 z-0 rounded-full border-2 border-brand ring-4 ring-brand/10"
         style={{ backgroundColor: background }}
         aria-hidden="true"
       />
 
-      {/* Mobile: crisp webp avatar at rest */}
+      {/* Square PFP — fills the circle like an NFT avatar at rest */}
       <div
         className={cn(
-          "absolute inset-0 z-10 overflow-hidden rounded-full md:hidden",
-          revealed && "pointer-events-none opacity-0",
+          "absolute inset-0 z-10 overflow-hidden rounded-full transition-opacity duration-300",
+          expanded && "pointer-events-none opacity-0",
+          "md:group-hover:pointer-events-none md:group-hover:opacity-0",
         )}
-        aria-hidden={revealed}
+        aria-hidden={expanded}
       >
         <ImageWithFallback
           src={host.image}
           alt=""
           width={512}
           height={512}
-          className="h-full w-full object-cover"
+          className="h-full w-full scale-[1.14] object-cover object-center"
           sizes={HOST_AVATAR_SIZES}
           quality={HOST_PORTRAIT_QUALITY}
         />
       </div>
 
-      {/* Full character — desktop always; mobile when tapped */}
+      {/* Full character — hidden at rest, revealed on hover or tap */}
       <div
         className={cn(
-          "host-reveal-portrait__clip absolute inset-0 z-20 overflow-hidden rounded-full",
-          revealed && "is-revealed",
-          !revealed && "max-md:invisible max-md:opacity-0",
+          "host-reveal-portrait__clip pointer-events-none absolute inset-0 z-20 overflow-hidden rounded-full opacity-0",
+          expanded && "is-revealed pointer-events-auto opacity-100",
+          "md:group-hover:pointer-events-auto md:group-hover:opacity-100",
         )}
       >
         <ImageWithFallback
@@ -108,7 +109,7 @@ export function HostRevealPortrait({ host }: HostRevealPortraitProps) {
           className={cn(
             "host-reveal-portrait__image pointer-events-none absolute left-1/2 h-auto max-w-none",
             "transition-transform duration-500 ease-[var(--ease-out)]",
-            getFullPortraitClass(host.id, revealed),
+            getPopUpPortraitClass(host.id, expanded),
           )}
           sizes={HOST_FULL_PORTRAIT_SIZES}
           quality={HOST_PORTRAIT_QUALITY}

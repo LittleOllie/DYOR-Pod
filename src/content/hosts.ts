@@ -34,6 +34,17 @@ export const hosts: Host[] = [
     xUrl: "https://x.com/NF_Janner",
     displayOrder: 3,
   },
+  {
+    id: "mj",
+    name: "MJ",
+    handle: "skizdidlyidler",
+    role: "DYOR Host",
+    image: "/hosts/MJPfp.jpg",
+    fullImage: "/hosts/MJFull.png",
+    portraitBackground: "#7c6cf0",
+    xUrl: "https://x.com/skizdidlyidler",
+    displayOrder: 4,
+  },
 ];
 
 export function getHosts(): Host[] {

@@ -5,7 +5,7 @@ import { SpacesLibrary } from "@/components/library/SpacesLibrary";
 import { getLibraryCategories, spaceRecordings } from "@/content/spacesLibrary";
 
 describe("SpacesLibrary", () => {
-  it("renders collapsible show sections and episode disclosures", async () => {
+  it("renders compact show dropdowns with episode links", async () => {
     const user = userEvent.setup();
     const categories = getLibraryCategories();
     render(<SpacesLibrary categories={categories} />);
@@ -14,15 +14,11 @@ describe("SpacesLibrary", () => {
       screen.getAllByRole("heading", { level: 2, name: /Spaces Library/i }).length,
     ).toBeGreaterThan(0);
 
+    const archive = screen.getByLabelText("Space archive by show");
     const sundaySection = document.getElementById("library-recordings-dyor-sunday")?.closest("details");
     expect(sundaySection).not.toHaveAttribute("open");
 
-    const mobileRoot = document.querySelector(".md\\:hidden .flex.flex-col.gap-2");
-    expect(mobileRoot).toBeTruthy();
-
-    const sundaySummary = within(mobileRoot as HTMLElement)
-      .getAllByText("DYOR Sunday")[0]
-      .closest("summary");
+    const sundaySummary = within(archive).getByText("DYOR Sunday").closest("summary");
     expect(sundaySummary).toBeTruthy();
     await user.click(sundaySummary!);
     expect(sundaySection).toHaveAttribute("open");
@@ -32,31 +28,28 @@ describe("SpacesLibrary", () => {
         within(sundaySection!).getAllByText(new RegExp(`Ep\\. ${recording.episode}(?:\\s|·|$)`))
           .length,
       ).toBeGreaterThan(0);
+      expect(
+        within(sundaySection!).getByRole("link", {
+          name: `Listen to episode ${recording.episode} on X`,
+        }),
+      ).toBeInTheDocument();
     }
 
-    const wwfcSummary = within(mobileRoot as HTMLElement)
-      .getAllByText("Will Work for Crypto")[0]
-      .closest("summary");
+    const wwfcSummary = within(archive).getByText("Will Work for Crypto").closest("summary");
     expect(wwfcSummary).toBeTruthy();
     await user.click(wwfcSummary!);
 
-    const wwfcSection = document.getElementById("library-recordings-will-work-for-crypto")?.closest("details");
+    const wwfcSection = document
+      .getElementById("library-recordings-will-work-for-crypto")
+      ?.closest("details");
     expect(wwfcSection).toHaveAttribute("open");
 
-    const wwfcEpisodes = spaceRecordings.filter((r) => r.showId === "will-work-for-crypto");
-    for (const recording of wwfcEpisodes) {
+    for (const recording of spaceRecordings.filter((r) => r.showId === "will-work-for-crypto")) {
       expect(
-        within(wwfcSection!).getAllByText(new RegExp(`Ep\\. ${recording.episode}(?:\\s|·|$)`))
-          .length,
-      ).toBeGreaterThan(0);
+        within(wwfcSection!).getByRole("link", {
+          name: `Listen to episode ${recording.episode} on X`,
+        }),
+      ).toBeInTheDocument();
     }
-
-    const ep5 = within(sundaySection!).getAllByText(/Ep\. 5/)[0].closest("details");
-    expect(ep5).not.toHaveAttribute("open");
-    await user.click(ep5!.querySelector("summary")!);
-    expect(ep5).toHaveAttribute("open");
-    expect(
-      within(ep5 as HTMLElement).getByRole("link", { name: /Listen to episode 5 on X/i }),
-    ).toBeInTheDocument();
   });
 });

@@ -198,6 +198,7 @@ export function MissionGame({ mode, onExit, standalone = false }: MissionGamePro
             highestCycleReached: d.highestCycleReached,
             fastestSectorCompletionMs: d.fastestSectorCompletionMs,
           });
+          engineRef.current?.setPreviousBest(actions.getBest(mode));
           setDebrief({ ...d, isPersonalBest: isBest });
           actions.markLaunchSequenceSeen();
           audioRef.current?.play(isBest ? "new-record" : "mission-complete");
@@ -467,7 +468,7 @@ export function MissionGame({ mode, onExit, standalone = false }: MissionGamePro
   const handleRestart = () => {
     setDebrief(null);
     setLaunchStep(0);
-    engineRef.current?.restart(mode);
+    engineRef.current?.restart(mode, getBest(mode));
   };
 
   const handleSwitchMode = () => {
@@ -475,7 +476,7 @@ export function MissionGame({ mode, onExit, standalone = false }: MissionGamePro
     setMode(next);
     setDebrief(null);
     setLaunchStep(0);
-    engineRef.current?.restart(next);
+    engineRef.current?.restart(next, getBest(next));
   };
 
   const handleAbandon = () => {

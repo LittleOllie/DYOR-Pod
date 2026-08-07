@@ -3,45 +3,65 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-/** Homepage sections linked from main nav, in scroll order. */
-const HOME_SECTIONS = ["schedule", "podcast", "library", "hosts", "game", "about", "newsletter"] as const;
+/** Homepage sections linked from main nav, in page order (deepest anchors last). */
+export const HOME_SECTIONS = [
+  "schedule",
+  "podcast",
+  "library",
+  "hosts",
+  "game",
+  "about",
+  "newsletter",
+] as const;
 
-const HEADER_OFFSET = 88;
+const HEADER_OFFSET = 96;
 
-function getSectionInView(): string {
-  let current: string = HOME_SECTIONS[0];
+function getSectionTop(element: HTMLElement): number {
+  return element.getBoundingClientRect().top + window.scrollY;
+}
+
+function getSectionInView(): string | null {
+  const scrollPosition = window.scrollY + HEADER_OFFSET + 12;
+  let active: string | null = null;
 
   for (const id of HOME_SECTIONS) {
-    const el = document.getElementById(id);
-    if (!el) continue;
+    const element = document.getElementById(id);
+    if (!element) continue;
 
-    const top = el.getBoundingClientRect().top;
-    if (top <= HEADER_OFFSET + 48) {
-      current = id;
+    if (scrollPosition >= getSectionTop(element)) {
+      active = id;
     }
   }
 
-  return current;
+  return active;
 }
 
 export function useActiveNavSection(): string | null {
   const pathname = usePathname();
-  const [scrollSection, setScrollSection] = useState<string>(HOME_SECTIONS[0]);
+  const [scrollSection, setScrollSection] = useState<string | null>(null);
 
   useEffect(() => {
     if (pathname !== "/") return;
 
+    let frame = 0;
+
     const updateActiveSection = () => {
-      setScrollSection(getSectionInView());
+      cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        setScrollSection(getSectionInView());
+      });
     };
 
     updateActiveSection();
     window.addEventListener("scroll", updateActiveSection, { passive: true });
     window.addEventListener("resize", updateActiveSection);
+    window.addEventListener("hashchange", updateActiveSection);
 
     return () => {
+      cancelAnimationFrame(frame);
       window.removeEventListener("scroll", updateActiveSection);
       window.removeEventListener("resize", updateActiveSection);
+      window.removeEventListener("hashchange", updateActiveSection);
     };
   }, [pathname]);
 

@@ -76,8 +76,8 @@ export function SiteHeader({ isLive, ctaHref, nextEventLabel }: SiteHeaderProps)
                       className={cn(
                         "rounded-md px-3 py-2 text-sm font-medium transition-colors duration-[var(--motion-fast)] focus-ring",
                         isActive
-                          ? "bg-brand/15 text-brand-bright"
-                          : "text-text-secondary hover:text-brand-bright",
+                          ? "bg-brand/20 font-semibold text-brand-bright shadow-[inset_0_-2px_0_0_var(--color-brand-bright)]"
+                          : "text-text-secondary hover:bg-brand/10 hover:text-brand-bright",
                       )}
                     >
                       {item.label}

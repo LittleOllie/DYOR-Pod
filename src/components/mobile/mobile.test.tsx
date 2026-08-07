@@ -20,9 +20,6 @@ describe("Mobile homepage", () => {
     expect(
       document.querySelector('a[href="/#podcast"].md\\:hidden'),
     ).toBeTruthy();
-    const chipContainer = document.querySelector(".hidden.flex-wrap.gap-2");
-    expect(chipContainer).toBeTruthy();
-    expect(chipContainer).toHaveClass("md:flex");
   });
 
   it("header hides next space CTA on mobile breakpoints", () => {
@@ -54,6 +51,7 @@ describe("Mobile homepage", () => {
     expect(screen.getByText("DW")).toBeInTheDocument();
     expect(screen.getByText("Petey K")).toBeInTheDocument();
     expect(screen.getByText("Janner")).toBeInTheDocument();
+    expect(screen.getByText("MJ")).toBeInTheDocument();
   });
 
   it("mission summary shows three principles only", () => {

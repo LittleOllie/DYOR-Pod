@@ -5,9 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import { MobileSectionHeader } from "@/components/mobile/MobileSectionHeader";
 import { PodcastPlatformButtons } from "@/components/podcast/PodcastPlatformButtons";
 import { SpaceshipPodcastController } from "@/components/podcast/SpaceshipPodcastController";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { podcast, podcastSection } from "@/content/podcast";
-import { podcastMobile } from "@/content/site";
 import { getShowById } from "@/content/shows";
 import { site } from "@/content/site";
 
@@ -119,14 +119,14 @@ export function PodcastFeature() {
   return (
     <div>
       <MobileSectionHeader
-        eyebrow={podcastMobile.eyebrow}
+        id="podcast-heading"
         title={podcastSection.heading}
-        accent="Space Ends"
+        accent={podcastSection.headingAccent}
         description={podcastSection.description}
         className="md:hidden"
       />
 
-      {/* Mobile layout — unchanged */}
+      {/* Mobile layout */}
       <div className="md:hidden">
         <div className="flex gap-4">
           <div
@@ -144,11 +144,7 @@ export function PodcastFeature() {
             />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-heading text-lg font-bold text-text-primary">The DYOR Podcast</p>
-            <p className="mt-1 text-sm font-medium text-gold">{podcastMobile.highlight}</p>
-            <p className="mt-2 line-clamp-3 text-sm leading-snug text-text-secondary">
-              {podcastSection.description}
-            </p>
+            <p className="mt-1 text-sm font-medium text-gold">{podcastSection.releaseNote}</p>
           </div>
         </div>
 
@@ -165,17 +161,14 @@ export function PodcastFeature() {
 
       {/* Desktop */}
       <div className="hidden md:block">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand">
-          The weekly podcast
-        </p>
-        <h2 className="mt-3 max-w-4xl font-heading text-4xl font-bold leading-[1.08] text-text-primary lg:text-5xl xl:text-[3.25rem]">
-          Research Never Stops When the{" "}
-          <span className="bg-clip-text text-transparent bg-[linear-gradient(100deg,#13a9a6_0%,#22c4bd_28%,#31d1c6_52%,#4ecde8_76%,#7dd3fc_100%)]">
-            Space Ends
-          </span>
-        </h2>
+        <SectionHeading
+          id="podcast-heading"
+          title={podcastSection.heading}
+          accent={podcastSection.headingAccent}
+          className="mb-8"
+        />
 
-        <div className="mt-8 flex min-w-0 items-stretch gap-5 lg:gap-8">
+        <div className="flex min-w-0 items-stretch gap-5 lg:gap-8">
           <div
             className="relative w-[20rem] shrink-0 overflow-hidden rounded-[var(--radius-xl)] bg-bg-primary/30 shadow-[var(--shadow-soft)] lg:w-[22rem]"
             style={{ aspectRatio: `${imageWidth} / ${imageHeight}` }}

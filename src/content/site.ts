@@ -13,6 +13,11 @@ export const site: SiteConfig = {
   },
 };
 
+export const siteTagline =
+  "Decoding crypto, AI, and the investments defining tomorrow.";
+
+export const siteTitle = `DYOR | ${siteTagline}`;
+
 /** Each week's live Space link is posted on the @DYORPod X account. */
 export const xSpaceNote =
   "Each week's Space link is posted on @DYORPod on X.";
@@ -23,11 +28,6 @@ export const hero = {
   headlineAccent: "conversations",
   description:
     "Live crypto news, charts, interviews and independent opinions across weekly X Spaces and the DYOR Podcast.",
-  supportingPoints: [
-    "Weekly X Spaces",
-    "Crypto news and analysis",
-    "Podcast every Wednesday",
-  ],
 };
 
 /** Mobile homepage hero — shorter, editorial copy. Desktop uses `hero`. */
@@ -54,10 +54,9 @@ export const hostsMobile = {
 } as const;
 
 export const missionMobile = {
-  eyebrow: "Mission Control",
   title: "Do Your Own Research",
   mission:
-    "A live crypto broadcast built to help you think independently, ask better questions and make better long-term decisions.",
+    "Weekly X Spaces and the DYOR Podcast — built to help you think independently, ask better questions and make better long-term decisions.",
   valuesLine: "Community first. Always bullish. Profits over screenshots.",
   readMoreLabel: "Read our mission and values",
 } as const;
@@ -88,7 +87,7 @@ export const hostsDesktop = {
   title: "Meet the Voices Behind DYOR",
   accent: "DYOR",
   description:
-    "Three hosts. One team. Independent perspectives on crypto every week.",
+    "Independent perspectives on crypto every week.",
 } as const;
 
 export const heroDesktop = {

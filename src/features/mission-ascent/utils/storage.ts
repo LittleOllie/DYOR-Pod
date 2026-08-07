@@ -5,6 +5,12 @@ import {
   type MissionRecords,
   type MissionStorageSchema,
 } from "@/features/mission-ascent/types/mission.types";
+import { isLocalDevHost } from "@/lib/site/url";
+
+const LOCAL_MISSION_STORAGE_SUFFIX = ":local";
+
+/** In-memory fallback when localStorage is unavailable (private mode, quota, etc.). */
+let memoryFallback: MissionStorageSchema | null = null;
 
 export const defaultMissionRecords: MissionRecords = {
   timedBest: 0,
@@ -128,6 +134,36 @@ export function serializeMissionStorage(data: MissionStorageSchema): string {
   return JSON.stringify({ ...data, version: MISSION_STORAGE_VERSION });
 }
 
+/** Resolves the localStorage key — localhost uses a dedicated namespace. */
+export function resolveMissionStorageKey(hostname?: string): string {
+  if (isLocalDevHost(hostname)) {
+    return `${MISSION_STORAGE_KEY}${LOCAL_MISSION_STORAGE_SUFFIX}`;
+  }
+  return MISSION_STORAGE_KEY;
+}
+
+function readRawMissionStorage(key: string): string | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return memoryFallback ? serializeMissionStorage(memoryFallback) : null;
+  }
+}
+
+function writeRawMissionStorage(key: string, serialized: string, data: MissionStorageSchema): void {
+  memoryFallback = data;
+
+  if (typeof window === "undefined") return;
+
+  try {
+    window.localStorage.setItem(key, serialized);
+  } catch {
+    // Keep in-memory copy for this session when persistence is blocked.
+  }
+}
+
 export function readMissionStorage(): MissionStorageSchema {
   if (typeof window === "undefined") {
     return {
@@ -136,12 +172,16 @@ export function readMissionStorage(): MissionStorageSchema {
       preferences: { ...defaultMissionPreferences },
     };
   }
-  return parseMissionStorage(window.localStorage.getItem(MISSION_STORAGE_KEY));
+
+  const key = resolveMissionStorageKey();
+  return parseMissionStorage(readRawMissionStorage(key));
 }
 
 export function writeMissionStorage(data: MissionStorageSchema): void {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(MISSION_STORAGE_KEY, serializeMissionStorage(data));
+
+  const key = resolveMissionStorageKey();
+  writeRawMissionStorage(key, serializeMissionStorage(data), data);
 }
 
 export function updateMissionRecords(

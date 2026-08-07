@@ -57,9 +57,6 @@ export function DesktopMissionPanel() {
       />
 
       <header className="max-w-4xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brand">
-          {aboutSection.eyebrow}
-        </p>
         <h2
           id="about-heading"
           className="mt-3 font-heading text-4xl font-bold tracking-tight text-text-primary md:text-5xl lg:text-[3.5rem] lg:leading-[1.05] xl:text-6xl"

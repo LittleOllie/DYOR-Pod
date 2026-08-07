@@ -17,7 +17,9 @@ export const podcast: PodcastConfig = {
 };
 
 export const podcastSection = {
-  heading: "Research Never Stops When the Space Ends",
+  eyebrow: "The weekly podcast",
+  heading: "The DYOR Podcast",
+  headingAccent: "DYOR Podcast",
   description:
     "Catch up on the weekly DYOR Podcast — crypto news, opinions and conversations released every Wednesday on Spotify and Apple Podcasts.",
   releaseNote: "New episodes every Wednesday",

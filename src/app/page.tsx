@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
 import { AboutDYOR } from "@/components/about/AboutDYOR";
+import { GameSection } from "@/components/game/GameSection";
 import { HeroSection } from "@/components/hero/HeroSection";
 import { SectionContainer } from "@/components/layout/SectionContainer";
 import { HostGrid } from "@/components/hosts/HostGrid";
 import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { PodcastFeature } from "@/components/podcast/PodcastFeature";
 import { WeeklySchedule } from "@/components/schedule/WeeklySchedule";
-import { ShowGrid } from "@/components/shows/ShowGrid";
 import { SpacesLibrarySection } from "@/components/library/SpacesLibrarySection";
-import { SectionHeading } from "@/components/ui/SectionHeading";
 import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
-import { newsletter } from "@/content/site";
-import { podcastSection } from "@/content/podcast";
+import { newsletter, siteTagline, siteTitle } from "@/content/site";
 import { getEventStatus } from "@/lib/schedule/getEventStatus";
 import { getHeaderStateAsync } from "@/lib/schedule/getHeaderState";
 import { fetchEffectiveShows } from "@/lib/schedule/scheduleStorage";
@@ -19,9 +17,8 @@ import { createPageMetadata } from "@/lib/seo/canonical";
 
 export const metadata: Metadata = createPageMetadata({
   path: "/",
-  title: "DYOR Podcast | Live Crypto Spaces, News & Opinion",
-  description:
-    "Join DYOR for weekly live crypto conversations on X, market analysis, interviews and the DYOR Podcast on Spotify and Apple Podcasts.",
+  title: siteTitle,
+  description: siteTagline,
 });
 
 export default async function HomePage() {
@@ -46,21 +43,8 @@ export default async function HomePage() {
         <WeeklySchedule />
       </SectionContainer>
 
-      <SectionContainer id="shows" ariaLabelledby="shows-heading">
-        <h2 id="shows-heading" className="sr-only">
-          Programmes
-        </h2>
-        <RevealOnScroll>
-          <ShowGrid />
-        </RevealOnScroll>
-      </SectionContainer>
-
       <SectionContainer id="podcast" ariaLabelledby="podcast-heading">
-        <h2 id="podcast-heading" className="sr-only">
-          Podcast
-        </h2>
         <RevealOnScroll>
-          <SectionHeading title={podcastSection.heading} />
           <PodcastFeature />
         </RevealOnScroll>
       </SectionContainer>
@@ -83,9 +67,18 @@ export default async function HomePage() {
         </RevealOnScroll>
       </SectionContainer>
 
+      <SectionContainer id="game" ariaLabelledby="game-heading">
+        <RevealOnScroll>
+          <h2 id="game-heading" className="sr-only">
+            Mission Ascent
+          </h2>
+          <GameSection />
+        </RevealOnScroll>
+      </SectionContainer>
+
       <SectionContainer id="about" ariaLabelledby="about-heading">
         <h2 id="about-heading" className="sr-only">
-          About DYOR
+          Mission Control
         </h2>
         <RevealOnScroll>
           <AboutDYOR />
@@ -94,14 +87,10 @@ export default async function HomePage() {
 
       <SectionContainer id="newsletter" ariaLabelledby="newsletter-heading">
         <RevealOnScroll>
-          <div className="text-center">
-            <SectionHeading
-              title={newsletter.heading}
-              description={newsletter.description}
-              align="center"
-            />
-            <NewsletterSignup />
-          </div>
+          <h2 id="newsletter-heading" className="sr-only">
+            {newsletter.heading}
+          </h2>
+          <NewsletterSignup />
         </RevealOnScroll>
       </SectionContainer>
     </>

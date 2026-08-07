@@ -1,43 +1,41 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
-import { DesktopSpacesLibraryGrid } from "@/components/desktop/DesktopSpacesLibraryGrid";
+import { SpacesLibrary } from "@/components/library/SpacesLibrary";
 import { HostGrid } from "@/components/hosts/HostGrid";
 import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { getLibraryCategories } from "@/content/spacesLibrary";
 import { getHosts } from "@/content/hosts";
 
-describe("DesktopSpacesLibraryGrid", () => {
-  it("renders one archive card per show with attached recording data", async () => {
+describe("SpacesLibrary desktop", () => {
+  it("renders compact show dropdowns for each archive category", async () => {
     const user = userEvent.setup();
     const categories = getLibraryCategories();
-    render(<DesktopSpacesLibraryGrid categories={categories} />);
+    render(<SpacesLibrary categories={categories} />);
 
-    expect(screen.getByRole("heading", { level: 2, name: /Spaces Library/i })).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("heading", { level: 2, name: /Spaces Library/i }).length,
+    ).toBeGreaterThan(0);
 
-    const grid = screen.getByLabelText(/Space archive by show/i);
-    const cards = within(grid).getAllByRole("article");
-    expect(cards).toHaveLength(categories.length);
+    const archive = screen.getByLabelText("Space archive by show");
+    expect(archive.querySelectorAll("details")).toHaveLength(categories.length);
 
     for (const category of categories) {
-      expect(within(grid).getByRole("heading", { level: 3, name: category.name })).toBeInTheDocument();
-      const card = within(grid)
-        .getByRole("heading", { level: 3, name: category.name })
-        .closest("article")!;
-      const count = category.recordings.length;
-      if (count > 0) {
-        expect(within(card).getByText(new RegExp(`${count} recording`))).toBeInTheDocument();
-        expect(within(card).getByRole("button", { name: /View recordings/i })).toBeInTheDocument();
-      } else {
-        expect(within(card).getByText(/Recordings coming soon/i)).toBeInTheDocument();
-      }
+      expect(within(archive).getByText(category.name)).toBeInTheDocument();
     }
 
-    const sundayCard = within(grid)
-      .getByRole("heading", { level: 3, name: "DYOR Sunday" })
-      .closest("article")!;
-    await user.click(within(sundayCard).getByRole("button", { name: /View recordings/i }));
-    expect(within(sundayCard).getAllByRole("link", { name: /Listen to episode/i }).length).toBeGreaterThan(0);
+    const sundayCard = within(archive).getByText("DYOR Sunday").closest("details");
+    expect(sundayCard).toBeTruthy();
+    await user.click(within(sundayCard as HTMLElement).getByText("DYOR Sunday"));
+
+    const sundayRecordings = categories.find((c) => c.showId === "dyor-sunday")!.recordings;
+    for (const recording of sundayRecordings) {
+      expect(
+        within(sundayCard as HTMLElement).getByRole("link", {
+          name: `Listen to episode ${recording.episode} on X`,
+        }),
+      ).toBeInTheDocument();
+    }
   });
 });
 

@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useMissionStorage } from "@/features/mission-ascent/hooks/useMissionStorage";
+import { reloadMissionStorageFromDisk, useMissionStorage } from "@/features/mission-ascent/hooks/useMissionStorage";
 import { useEffect } from "react";
 
 const MissionGame = dynamic(
@@ -16,6 +16,7 @@ export default function MissionPageClient() {
   const { preferences } = useMissionStorage();
 
   useEffect(() => {
+    reloadMissionStorageFromDisk();
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "";

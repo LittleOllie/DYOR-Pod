@@ -11,7 +11,6 @@ export function HostGrid() {
   return (
     <div className="min-w-0">
       <MobileSectionHeader
-        eyebrow={hostsMobile.eyebrow}
         title={hostsMobile.title}
         accent="DYOR"
         description={hostsMobile.description}
@@ -27,7 +26,7 @@ export function HostGrid() {
           description={hostsDesktop.description}
           className="mb-8"
         />
-        <div className="host-grid grid min-w-0 grid-cols-3 gap-[22px] max-[1100px]:gap-4">
+        <div className="host-grid grid min-w-0 grid-cols-2 gap-4 max-[1100px]:gap-4 lg:grid-cols-4 lg:gap-[22px]">
           {hosts.map((host) => (
             <HostCard key={host.id} host={host} />
           ))}

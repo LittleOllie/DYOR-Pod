@@ -9,6 +9,7 @@ type SectionHeadingProps = {
   description?: string;
   align?: "left" | "center";
   className?: string;
+  id?: string;
 };
 
 export function SectionHeading({
@@ -18,6 +19,7 @@ export function SectionHeading({
   description,
   align = "left",
   className,
+  id,
 }: SectionHeadingProps) {
   return (
     <div
@@ -32,7 +34,10 @@ export function SectionHeading({
           {eyebrow}
         </p>
       )}
-      <h2 className="font-heading text-2xl font-bold tracking-tight text-text-primary md:text-4xl md:leading-[1.08] lg:text-[2.75rem] xl:text-5xl">
+      <h2
+        id={id}
+        className="font-heading text-2xl font-bold tracking-tight text-text-primary md:text-4xl md:leading-[1.08] lg:text-[2.75rem] xl:text-5xl"
+      >
         <HeadingWithAccent title={title} accent={accent} />
       </h2>
       {description && (

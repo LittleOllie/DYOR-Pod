@@ -6,7 +6,7 @@ import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { podcast } from "@/content/podcast";
-import { site } from "@/content/site";
+import { site, siteTagline, siteTitle } from "@/content/site";
 import { getHeaderStateAsync } from "@/lib/schedule/getHeaderState";
 import { AnalyticsScript } from "@/components/analytics/AnalyticsScript";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
@@ -24,13 +24,15 @@ const spaceGrotesk = Space_Grotesk({
   display: "swap",
 });
 
-const title = "DYOR Podcast | Live Crypto Spaces, News & Opinion";
-const description =
-  "Join DYOR for weekly live crypto conversations on X, market analysis, interviews and the DYOR Podcast on Spotify and Apple Podcasts.";
+const title = siteTitle;
+const description = siteTagline;
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.domain),
-  title,
+  title: {
+    default: siteTitle,
+    template: "%s | DYOR",
+  },
   description,
   openGraph: {
     title,

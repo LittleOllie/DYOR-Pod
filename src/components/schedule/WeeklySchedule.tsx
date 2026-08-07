@@ -31,14 +31,12 @@ export async function WeeklySchedule() {
   return (
     <RevealOnScroll>
       <MobileSectionHeader
-        eyebrow={scheduleMobile.eyebrow}
         title={scheduleMobile.title}
         accent="DYOR"
         description={scheduleDescription}
         className="md:hidden"
       />
       <SectionHeading
-        eyebrow={scheduleDesktop.eyebrow}
         title={scheduleDesktop.title}
         accent="DYOR"
         description={desktopDescription}

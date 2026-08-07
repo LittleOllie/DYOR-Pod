@@ -133,8 +133,10 @@ export function MobileNavigation({ activeSection }: MobileNavigationProps) {
                         href={item.href}
                         aria-current={isActive ? "page" : undefined}
                         className={cn(
-                          "flex min-h-[52px] items-center rounded-lg px-1 text-xl font-medium focus-ring",
-                          isActive ? "text-brand-bright" : "text-text-primary active:text-brand-bright",
+                          "flex min-h-[52px] items-center rounded-lg px-3 text-xl font-medium transition-colors focus-ring",
+                          isActive
+                            ? "bg-brand/15 font-semibold text-brand-bright"
+                            : "text-text-primary active:text-brand-bright",
                         )}
                         onClick={close}
                       >
