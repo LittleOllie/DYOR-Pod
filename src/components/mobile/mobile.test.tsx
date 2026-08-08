@@ -54,13 +54,10 @@ describe("Mobile homepage", () => {
     expect(screen.getByText("MJ")).toBeInTheDocument();
   });
 
-  it("mission summary shows three principles only", () => {
+  it("mission summary shows value cards", () => {
     render(<MobileMissionSummary />);
-    expect(screen.getByText(/Independent perspectives/i)).toBeInTheDocument();
-    expect(screen.getByText(/Live community conversation/i)).toBeInTheDocument();
-    expect(screen.getByText(/Research before reaction/i)).toBeInTheDocument();
-    expect(screen.queryByText("Community First")).not.toBeInTheDocument();
-    expect(screen.getByText(/Read our mission and values/i)).toBeInTheDocument();
+    expect(screen.getByText("Community First")).toBeInTheDocument();
+    expect(screen.getByText("Always Bullish")).toBeInTheDocument();
   });
 });
 

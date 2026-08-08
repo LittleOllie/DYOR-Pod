@@ -635,6 +635,24 @@ h6 {
   object-position: 50% 46%;
 }
 
+/** Faint Game-D/Y/O/R marks behind value cards. */
+.value-card-watermark {
+  opacity: 0.09;
+  transition: opacity var(--motion-base) var(--ease-out);
+}
+
+.group:hover .value-card-watermark {
+  opacity: 0.13;
+}
+
+.value-card-watermark__image {
+  width: 88%;
+  height: 88%;
+  max-width: 16rem;
+  object-fit: contain;
+  object-position: center;
+}
+
 /** Teal glow around host profile circles — fixed layer; character renders above on pop-up. */
 .host-portrait-glow {
   box-shadow:

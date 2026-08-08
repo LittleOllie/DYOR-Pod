@@ -82,3 +82,13 @@ export const countdownLetters: {
 
 /** O with orbiting rocket — used for subtle host portrait watermarks. */
 export const countdownOSrc = "/brand/countdown-o.png";
+
+/** Game letter marks — used for Mission Ascent and value card watermarks. */
+export type GameLetterId = "d" | "y" | "o" | "r";
+
+export const gameLetterAssets: Record<GameLetterId, string> = {
+  d: "/brand/Game-D.png",
+  y: "/brand/Game-Y.png",
+  o: "/brand/Game-O.png",
+  r: "/brand/Game-R.png",
+};
