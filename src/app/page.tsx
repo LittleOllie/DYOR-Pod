@@ -10,7 +10,7 @@ import { WeeklySchedule } from "@/components/schedule/WeeklySchedule";
 import { SpacesLibrarySection } from "@/components/library/SpacesLibrarySection";
 import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
 import { newsletter, siteTagline, siteTitle } from "@/content/site";
-import { getEventStatus } from "@/lib/schedule/getEventStatus";
+import { getResolvedEventStatus } from "@/lib/schedule/resolveShowSchedule";
 import { getHeaderStateAsync } from "@/lib/schedule/getHeaderState";
 import { fetchEffectiveShows } from "@/lib/schedule/scheduleStorage";
 import { createPageMetadata } from "@/lib/seo/canonical";
@@ -22,11 +22,13 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 export default async function HomePage() {
-  const [{ featuredShow, startDate }, shows] = await Promise.all([
+  const [{ featuredShow, startDate, dateOverrides }, shows] = await Promise.all([
     getHeaderStateAsync(),
     fetchEffectiveShows(),
   ]);
-  const isAnyLive = shows.some((show) => getEventStatus(show) === "live");
+  const isAnyLive = shows.some(
+    (show) => getResolvedEventStatus(show, { dateOverrides }) === "live",
+  );
 
   return (
     <>
@@ -34,6 +36,7 @@ export default async function HomePage() {
         featuredShow={featuredShow}
         startDate={startDate}
         isAnyLive={isAnyLive}
+        dateOverrides={dateOverrides}
       />
 
       <SectionContainer id="schedule" ariaLabelledby="schedule-heading">

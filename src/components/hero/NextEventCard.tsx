@@ -1,67 +1,62 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { useMemo } from "react";
 import { CountdownTimer } from "@/components/hero/CountdownTimer";
 import { CompactCountdown } from "@/components/schedule/CompactCountdown";
 import { LiveBadge } from "@/components/hero/LiveBadge";
-import { LinkButton } from "@/components/ui/Button";
+import { HeroReminderActions } from "@/components/pwa/SpaceReminderControls";
 import { site, xSpaceNote } from "@/content/site";
-import { getEventStatus } from "@/lib/schedule/getEventStatus";
-import { getNextOccurrence } from "@/lib/schedule/getNextOccurrence";
+import { useFeaturedEventRollover } from "@/hooks/useFeaturedEventRollover";
 import {
   formatEventTime,
   formatShowSchedule,
 } from "@/lib/schedule/formatEventTime";
 import { formatMobileEventTiming } from "@/lib/schedule/formatMobileEventTiming";
+import type { DateScheduleOverride } from "@/lib/schedule/scheduleTypes";
 import type { Show } from "@/types/content";
 import { cn } from "@/lib/utils/cn";
 
 type NextEventCardProps = {
   show: Show;
   startDate?: string;
+  dateOverrides?: DateScheduleOverride[];
   className?: string;
-  /** Desktop hero featured broadcast treatment */
   featured?: boolean;
 };
 
 export function NextEventCard({
   show,
   startDate,
+  dateOverrides = [],
   className,
   featured = false,
 }: NextEventCardProps) {
-  const status = getEventStatus(show);
+  const { status, start } = useFeaturedEventRollover({
+    show,
+    startDate,
+    dateOverrides,
+  });
+
   const isLive = status === "live";
   const isPending = status === "schedule-pending";
   const isUpcoming = status === "upcoming";
-
-  const start = useMemo(() => {
-    if (startDate) return new Date(startDate);
-    return getNextOccurrence(show) ?? undefined;
-  }, [show, startDate]);
+  const isRecentlyEnded = status === "recently-ended";
 
   const formatted = start ? formatEventTime(start, show.timezone) : null;
   const mobileTiming =
     start && isUpcoming ? formatMobileEventTiming(start, show.timezone) : null;
 
   const ctaUrl = show.xUrl ?? show.spotifyUrl ?? site.social.x;
-  const ctaLabel = isLive
-    ? "Join live"
-    : isPending
-      ? "Follow DYOR on X"
-      : show.platform === "x"
-        ? "View on X"
-        : "Listen on Spotify";
 
   const statusLabel = isLive
     ? "LIVE NOW"
     : isPending
-      ? "NEXT LIVE SPACE"
-      : isUpcoming
-        ? "NEXT LIVE SPACE"
-        : "PROGRAMME";
+      ? "NEXT SPACE"
+      : isRecentlyEnded
+        ? "RECENTLY ENDED"
+        : "NEXT SPACE";
+
+  const countdownLabel = isUpcoming ? "Live in" : undefined;
 
   return (
     <article
@@ -148,6 +143,8 @@ export function NextEventCard({
             <p className="font-medium text-gold">Time to be confirmed</p>
           ) : isLive ? (
             <p className="font-semibold text-live">Live now on X</p>
+          ) : isRecentlyEnded ? (
+            <p className="font-medium text-text-secondary">This Space recently ended</p>
           ) : mobileTiming ? (
             <>
               <p className="font-medium text-text-primary md:hidden">{mobileTiming}</p>
@@ -193,7 +190,7 @@ export function NextEventCard({
         {start && isUpcoming && (
           <div className={cn("mt-4", featured && "md:opacity-80")}>
             <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-text-secondary/75">
-              Countdown
+              {countdownLabel}
             </p>
             <div className="md:hidden">
               <CompactCountdown targetDate={start.toISOString()} />
@@ -208,34 +205,13 @@ export function NextEventCard({
           <LiveBadge status={status} />
         </div>
 
-        {ctaUrl ? (
-          <div className={cn("mt-5", featured && "md:mt-8")}>
-            <LinkButton
-              href={ctaUrl}
-              variant={isLive ? "live" : "primary"}
-              size="lg"
-              external
-              className={cn(
-                "min-h-[50px] w-full text-base md:min-h-[52px]",
-                featured && "md:min-h-[56px] md:text-lg",
-              )}
-              aria-label={`${ctaLabel} — ${show.name}`}
-            >
-              {ctaLabel}
-            </LinkButton>
-            <Link
-              href="/#schedule"
-              className="mt-3 inline-flex min-h-[44px] items-center text-sm text-brand-bright underline-offset-4 hover:underline focus-ring md:hidden"
-            >
-              View full schedule
-            </Link>
-            {show.platform === "x" && !isLive && (
-              <p className="mt-3 hidden text-xs leading-relaxed text-text-secondary/80 md:block">
-                {xSpaceNote}
-              </p>
-            )}
-          </div>
-        ) : null}
+        <HeroReminderActions isLive={isLive} ctaUrl={ctaUrl} />
+
+        {show.platform === "x" && !isLive && featured && (
+          <p className="mt-3 hidden text-xs leading-relaxed text-text-secondary/80 md:block">
+            {xSpaceNote}
+          </p>
+        )}
       </div>
     </article>
   );

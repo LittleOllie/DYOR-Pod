@@ -49,13 +49,6 @@ export const metadata: Metadata = {
     description,
     images: ["/og/dyor-social-preview.jpg"],
   },
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "32x32", type: "image/png" },
-      { url: "/brand/favicon-192.png", sizes: "192x192", type: "image/png" },
-    ],
-    apple: "/apple-touch-icon.png",
-  },
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,

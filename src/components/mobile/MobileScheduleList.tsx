@@ -5,8 +5,11 @@ import { ChevronDown } from "lucide-react";
 import { CompactCountdown } from "@/components/schedule/CompactCountdown";
 import { LinkButton } from "@/components/ui/Button";
 import { StatusPill } from "@/components/ui/StatusPill";
-import { getEventStatus } from "@/lib/schedule/getEventStatus";
-import { getNextOccurrence } from "@/lib/schedule/getNextOccurrence";
+import type { DateScheduleOverride } from "@/lib/schedule/scheduleTypes";
+import {
+  getResolvedEventStatus,
+  getResolvedNextOccurrence,
+} from "@/lib/schedule/resolveShowSchedule";
 import { formatDayOfWeek, formatShowSchedule } from "@/lib/schedule/formatEventTime";
 import {
   getScheduleCtaLabel,
@@ -17,6 +20,7 @@ import { cn } from "@/lib/utils/cn";
 
 type MobileScheduleListProps = {
   shows: Show[];
+  dateOverrides?: DateScheduleOverride[];
 };
 
 function dayAbbrev(dayOfWeek: number): string {
@@ -27,20 +31,23 @@ function MobileScheduleRow({
   show,
   open,
   onToggle,
+  dateOverrides,
 }: {
   show: Show;
   open: boolean;
   onToggle: () => void;
+  dateOverrides: DateScheduleOverride[];
 }) {
-  const status = getEventStatus(show);
+  const status = getResolvedEventStatus(show, { dateOverrides });
   const ctaUrl = getShowCtaUrl(show);
   const ctaLabel = getScheduleCtaLabel(show, status);
   const isLive = status === "live";
   const isPending = status === "schedule-pending";
   const isUpcoming = status === "upcoming";
   const nextStart = useMemo(
-    () => (isUpcoming ? getNextOccurrence(show) : null),
-    [show, isUpcoming],
+    () =>
+      isUpcoming ? getResolvedNextOccurrence(show, { dateOverrides }) : null,
+    [show, isUpcoming, dateOverrides],
   );
   const panelId = `mobile-schedule-${show.id}`;
 
@@ -113,7 +120,10 @@ function MobileScheduleRow({
   );
 }
 
-export function MobileScheduleList({ shows }: MobileScheduleListProps) {
+export function MobileScheduleList({
+  shows,
+  dateOverrides = [],
+}: MobileScheduleListProps) {
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (
@@ -123,6 +133,7 @@ export function MobileScheduleList({ shows }: MobileScheduleListProps) {
           <MobileScheduleRow
             show={show}
             open={openId === show.id}
+            dateOverrides={dateOverrides}
             onToggle={() => setOpenId((current) => (current === show.id ? null : show.id))}
           />
         </div>

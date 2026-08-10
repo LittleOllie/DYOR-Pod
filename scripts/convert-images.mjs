@@ -67,31 +67,5 @@ await sharp({
 
 console.log("Wrote og/dyor-social-preview.jpg");
 
-// Favicon from Mission Ascent "O" lettermark
-const faviconSource = path.join(root, "brand", "Game-O.png");
-const faviconResize = {
-  fit: "contain",
-  background: { r: 0, g: 0, b: 0, alpha: 0 },
-};
-
-await sharp(faviconSource)
-  .resize(32, 32, faviconResize)
-  .png()
-  .toFile(path.join(root, "favicon.ico"));
-
-await sharp(faviconSource)
-  .resize(180, 180, faviconResize)
-  .png()
-  .toFile(path.join(root, "apple-touch-icon.png"));
-
-await sharp(faviconSource)
-  .resize(192, 192, faviconResize)
-  .png()
-  .toFile(path.join(root, "brand", "favicon-192.png"));
-
-await sharp(faviconSource)
-  .resize(512, 512, faviconResize)
-  .png()
-  .toFile(path.join(root, "brand", "favicon-512.png"));
-
+console.log("Run npm run generate:favicons to rebuild tab icons from public/brand/Game-O.png");
 console.log("Done");

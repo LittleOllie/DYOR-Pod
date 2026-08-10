@@ -40,7 +40,9 @@ export const shows: Show[] = [
       "Market analysis, trading perspectives, and technical analysis — charts, structure, and actionable crypto discussion.",
     identityCue: "chart",
     dayOfWeek: 2,
+    startTime: "18:00",
     timezone: "America/New_York",
+    durationMinutes: SPACE_DURATION_MINUTES,
     platform: "x",
     image: "/shows/will-work-for-crypto.webp",
     imageWidth: 1122,
@@ -50,7 +52,7 @@ export const shows: Show[] = [
     category: "Live X Space",
     isActive: true,
     displayOrder: 1,
-    scheduleConfirmed: false, // Owner: confirm Tuesday start time
+    scheduleConfirmed: true,
   },
   {
     id: "no-fud-friday",

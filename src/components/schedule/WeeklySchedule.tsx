@@ -1,11 +1,11 @@
 import { DesktopScheduleGrid } from "@/components/desktop/DesktopScheduleGrid";
 import { MobileScheduleList } from "@/components/mobile/MobileScheduleList";
 import { MobileSectionHeader } from "@/components/mobile/MobileSectionHeader";
-import { InstallAndNotifyPrompt } from "@/components/pwa/InstallAndNotifyPrompt";
+import { ScheduleInstallHelper } from "@/components/pwa/SpaceReminderControls";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
 import { scheduleDesktop, scheduleMobile } from "@/content/site";
-import { fetchEffectiveShows } from "@/lib/schedule/scheduleStorage";
+import { fetchEffectiveShows, readScheduleConfig } from "@/lib/schedule/scheduleStorage";
 import type { Show } from "@/types/content";
 
 function sortWeeklyShows(shows: Show[]): Show[] {
@@ -16,7 +16,11 @@ function sortWeeklyShows(shows: Show[]): Show[] {
 }
 
 export async function WeeklySchedule() {
-  const effectiveShows = await fetchEffectiveShows();
+  const [effectiveShows, config] = await Promise.all([
+    fetchEffectiveShows(),
+    readScheduleConfig(),
+  ]);
+  const dateOverrides = config?.dateOverrides ?? [];
   const weeklyShows = sortWeeklyShows(effectiveShows.filter((show) => show.isActive));
   const showCount = weeklyShows.length;
   const scheduleDescription =
@@ -43,13 +47,13 @@ export async function WeeklySchedule() {
         className="mb-8 hidden md:mb-12 md:block lg:mb-14"
       />
 
-      <MobileScheduleList shows={weeklyShows} />
+      <MobileScheduleList shows={weeklyShows} dateOverrides={dateOverrides} />
 
       <div className="hidden md:block">
         <DesktopScheduleGrid shows={weeklyShows} />
       </div>
 
-      <InstallAndNotifyPrompt />
+      <ScheduleInstallHelper />
     </RevealOnScroll>
   );
 }

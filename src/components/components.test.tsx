@@ -24,10 +24,17 @@ describe("HeroSection", () => {
     expect(screen.getByRole("link", { name: /Join live/i })).toBeInTheDocument();
   });
 
-  it("renders fallback when no x url on pending show", () => {
-    const pending = shows.find((s) => s.id === "will-work-for-crypto")!;
-    render(<HeroSection featuredShow={pending} isAnyLive={false} />);
-    expect(screen.getByText(/Time to be confirmed/i)).toBeInTheDocument();
+  it("renders confirmed WWFC in hero card", () => {
+    const wwfc = shows.find((s) => s.id === "will-work-for-crypto")!;
+    render(
+      <HeroSection
+        featuredShow={wwfc}
+        isAnyLive={false}
+        startDate="2099-01-07T23:00:00.000Z"
+      />,
+    );
+    expect(screen.getByText(/Will Work for Crypto/i)).toBeInTheDocument();
+    expect(screen.getByText(/Live in/i)).toBeInTheDocument();
   });
 });
 

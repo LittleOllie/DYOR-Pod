@@ -1,8 +1,11 @@
 import { shows as staticShows } from "@/content/shows";
 import { site } from "@/content/site";
-import { getEventStatus } from "@/lib/schedule/getEventStatus";
 import { getOccurrenceEnd } from "@/lib/schedule/getNextOccurrence";
 import { getNextOccurrenceWithOverrides } from "@/lib/schedule/scheduleOverrides";
+import {
+  getResolvedActiveOccurrence,
+  getResolvedEventStatus,
+} from "@/lib/schedule/resolveShowSchedule";
 import {
   fetchEffectiveShows,
   fetchScheduleConfigForAdmin,
@@ -27,7 +30,8 @@ function getNextScheduledSpaceWithOverrides(
     if (!start) continue;
 
     const end = getOccurrenceEnd(start, show.durationMinutes);
-    const isLive = now >= start && now < end;
+    const active = getResolvedActiveOccurrence(show, { dateOverrides: overrides, now });
+    const isLive = Boolean(active);
     const score = isLive ? 0 : start.getTime();
 
     if (!best || score < best.score) {
@@ -73,7 +77,7 @@ export function getHeaderStateForShows(
   const nextSpace = getNextScheduledSpaceWithOverrides(shows, overrides, now);
 
   const isLive =
-    shows.some((show) => getEventStatus(show, now) === "live") ||
+    shows.some((show) => getResolvedEventStatus(show, { dateOverrides: overrides, now }) === "live") ||
     Boolean(featured?.show.liveOverride);
 
   const featuredShow = featured?.show ?? shows[0];
@@ -81,7 +85,9 @@ export function getHeaderStateForShows(
 
   let ctaHref = "/#schedule";
   if (isLive) {
-    const liveShow = shows.find((show) => getEventStatus(show, now) === "live");
+    const liveShow = shows.find(
+      (show) => getResolvedEventStatus(show, { dateOverrides: overrides, now }) === "live",
+    );
     ctaHref = liveShow?.xUrl ?? site.social.x ?? "/#schedule";
   } else if (nextSpace) {
     ctaHref = nextSpace.show.xUrl ?? site.social.x ?? "/#schedule";
@@ -97,7 +103,11 @@ export function getHeaderState(now = new Date()) {
 export async function getHeaderStateAsync(now = new Date()) {
   const config = await readScheduleConfig();
   const shows = await fetchEffectiveShows();
-  return getHeaderStateForShows(shows, config?.dateOverrides ?? [], now);
+  const dateOverrides = config?.dateOverrides ?? [];
+  return {
+    ...getHeaderStateForShows(shows, dateOverrides, now),
+    dateOverrides,
+  };
 }
 
 export async function getSchedulePageData() {

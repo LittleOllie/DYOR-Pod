@@ -3,17 +3,25 @@ import { NextEventCard } from "@/components/hero/NextEventCard";
 import { LinkButton } from "@/components/ui/Button";
 import { HeadingWithAccent } from "@/components/ui/ColorfulAccent";
 import { hero, heroDesktop, heroMobile } from "@/content/site";
-import { getEventStatus } from "@/lib/schedule/getEventStatus";
 import type { Show } from "@/types/content";
+import type { DateScheduleOverride } from "@/lib/schedule/scheduleTypes";
+import { getResolvedEventStatus } from "@/lib/schedule/resolveShowSchedule";
 
 type HeroSectionProps = {
   featuredShow: Show;
   startDate?: string;
   isAnyLive: boolean;
+  dateOverrides?: DateScheduleOverride[];
 };
 
-export function HeroSection({ featuredShow, startDate, isAnyLive }: HeroSectionProps) {
-  const isLive = getEventStatus(featuredShow) === "live" || isAnyLive;
+export function HeroSection({
+  featuredShow,
+  startDate,
+  isAnyLive,
+  dateOverrides = [],
+}: HeroSectionProps) {
+  const isLive =
+    getResolvedEventStatus(featuredShow, { dateOverrides }) === "live" || isAnyLive;
   const primaryHref = isLive
     ? featuredShow.xUrl ?? "/#schedule"
     : "/#schedule";
@@ -80,7 +88,12 @@ export function HeroSection({ featuredShow, startDate, isAnyLive }: HeroSectionP
           </div>
 
           <div className="relative lg:justify-self-end lg:w-full lg:max-w-[32rem] xl:max-w-[36rem]">
-            <NextEventCard show={featuredShow} startDate={startDate} featured />
+            <NextEventCard
+              show={featuredShow}
+              startDate={startDate}
+              dateOverrides={dateOverrides}
+              featured
+            />
           </div>
         </div>
       </div>
