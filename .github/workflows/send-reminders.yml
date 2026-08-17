@@ -1,0 +1,25 @@
+name: Send Space reminders
+
+# Vercel Hobby blocks sub-daily crons in vercel.json. This workflow hits the
+# protected reminder endpoint instead (same Bearer CRON_SECRET as production).
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger production reminder cron
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          REMINDER_CRON_URL: https://www.dyorpod.com/api/cron/send-reminders
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "CRON_SECRET is not set in GitHub repository secrets — skipping."
+            exit 0
+          fi
+          curl -fsS \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            "${REMINDER_CRON_URL}"
