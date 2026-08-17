@@ -47,22 +47,23 @@ function getReducedMotionServerSnapshot() {
 }
 
 function getInitialIndex(shows: Show[]): number {
-  const highlighted = shows.findIndex((show) => isShowHighlighted(show));
+  const highlighted = shows.findIndex((show) => isShowHighlighted(show, shows));
   return highlighted >= 0 ? highlighted : 0;
 }
 
 type SlideProps = {
   show: Show;
   active: boolean;
+  allShows: Show[];
 };
 
-function ScheduleSlidePanel({ show, active }: SlideProps) {
+function ScheduleSlidePanel({ show, active, allShows }: SlideProps) {
   const status = getEventStatus(show);
   const accent = accentLabels[show.accent];
   const ctaUrl = getShowCtaUrl(show);
   const ctaLabel = getScheduleCtaLabel(show, status);
   const platformLabel = getShowPlatformLabel(show);
-  const highlighted = isShowHighlighted(show);
+  const highlighted = isShowHighlighted(show, allShows);
 
   return (
     <div
@@ -141,10 +142,10 @@ function ScheduleSlidePanel({ show, active }: SlideProps) {
   );
 }
 
-function ScheduleSlideImage({ show, active }: SlideProps) {
+function ScheduleSlideImage({ show, active, allShows }: SlideProps) {
   const imageWidth = show.imageWidth ?? 1122;
   const imageHeight = show.imageHeight ?? 1402;
-  const highlighted = isShowHighlighted(show);
+  const highlighted = isShowHighlighted(show, allShows);
 
   return (
     <div
@@ -323,13 +324,23 @@ export function ScheduleCarousel({ shows }: ScheduleCarouselProps) {
           <div className="flex min-h-[11.5rem] shrink-0 flex-col md:mx-0 md:min-h-0 md:h-[var(--schedule-content-height)] md:w-full md:max-w-[12rem]">
             <div className="relative h-[7.25rem] shrink-0 md:min-h-0 md:h-auto md:flex-1">
               {shows.map((item, i) => (
-                <ScheduleSlideImage key={item.id} show={item} active={i === index} />
+                <ScheduleSlideImage
+                  key={item.id}
+                  show={item}
+                  active={i === index}
+                  allShows={shows}
+                />
               ))}
             </div>
 
             <div className="relative mt-1.5 min-h-[3rem] shrink-0 md:mt-3 md:min-h-[4.5rem]">
               {shows.map((item, i) => (
-                <ScheduleSlideCountdown key={item.id} show={item} active={i === index} />
+                <ScheduleSlideCountdown
+                  key={item.id}
+                  show={item}
+                  active={i === index}
+                  allShows={shows}
+                />
               ))}
             </div>
           </div>
@@ -341,7 +352,12 @@ export function ScheduleCarousel({ shows }: ScheduleCarouselProps) {
           >
             <p className="sr-only">{activeShow.name}</p>
             {shows.map((item, i) => (
-              <ScheduleSlidePanel key={item.id} show={item} active={i === index} />
+              <ScheduleSlidePanel
+                key={item.id}
+                show={item}
+                active={i === index}
+                allShows={shows}
+              />
             ))}
           </div>
 

@@ -2,20 +2,26 @@
 
 import { CompactCountdown } from "@/components/schedule/CompactCountdown";
 import { getEventStatus } from "@/lib/schedule/getEventStatus";
-import { getNextOccurrence } from "@/lib/schedule/getNextOccurrence";
+import { getResolvedNextOccurrence } from "@/lib/schedule/resolveShowSchedule";
+import type { DateScheduleOverride } from "@/lib/schedule/scheduleTypes";
 import type { Show } from "@/types/content";
 import { cn } from "@/lib/utils/cn";
 
 type ShowCountdownProps = {
   show: Show;
   className?: string;
+  dateOverrides?: DateScheduleOverride[];
 };
 
 /** Countdown to the next occurrence — only when the show has a confirmed start time. */
-export function ShowCountdown({ show, className }: ShowCountdownProps) {
-  const status = getEventStatus(show);
+export function ShowCountdown({
+  show,
+  className,
+  dateOverrides = [],
+}: ShowCountdownProps) {
+  const status = getEventStatus(show, new Date(), dateOverrides);
 
-  if (status === "live" || status === "recently-ended") {
+  if (status === "live" || status === "recently-ended" || status === "schedule-pending") {
     return null;
   }
 
@@ -23,7 +29,7 @@ export function ShowCountdown({ show, className }: ShowCountdownProps) {
     return null;
   }
 
-  const next = getNextOccurrence(show);
+  const next = getResolvedNextOccurrence(show, { dateOverrides });
   if (!next) {
     return null;
   }

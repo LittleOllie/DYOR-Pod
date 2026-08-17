@@ -15,6 +15,7 @@ import {
   getScheduleCtaLabel,
   getShowCtaUrl,
 } from "@/lib/shows/showPresentation";
+import { isShowHighlighted } from "@/lib/schedule/getScheduleHighlight";
 import type { Show } from "@/types/content";
 import { cn } from "@/lib/utils/cn";
 
@@ -32,11 +33,13 @@ function MobileScheduleRow({
   open,
   onToggle,
   dateOverrides,
+  allShows,
 }: {
   show: Show;
   open: boolean;
   onToggle: () => void;
   dateOverrides: DateScheduleOverride[];
+  allShows: Show[];
 }) {
   const status = getResolvedEventStatus(show, { dateOverrides });
   const ctaUrl = getShowCtaUrl(show);
@@ -44,6 +47,7 @@ function MobileScheduleRow({
   const isLive = status === "live";
   const isPending = status === "schedule-pending";
   const isUpcoming = status === "upcoming";
+  const highlighted = isShowHighlighted(show, allShows, new Date(), dateOverrides);
   const nextStart = useMemo(
     () =>
       isUpcoming ? getResolvedNextOccurrence(show, { dateOverrides }) : null,
@@ -92,6 +96,15 @@ function MobileScheduleRow({
         </div>
       </button>
 
+      {highlighted && isUpcoming && nextStart && !open ? (
+        <div className="pb-3 pl-14 pr-1">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-text-secondary/70">
+            Next Space starts in
+          </p>
+          <CompactCountdown targetDate={nextStart.toISOString()} />
+        </div>
+      ) : null}
+
       {open ? (
         <div id={panelId} className="pb-4 pl-14 pr-1">
           <p className="text-sm leading-relaxed text-text-secondary">{show.description}</p>
@@ -134,6 +147,7 @@ export function MobileScheduleList({
             show={show}
             open={openId === show.id}
             dateOverrides={dateOverrides}
+            allShows={shows}
             onToggle={() => setOpenId((current) => (current === show.id ? null : show.id))}
           />
         </div>

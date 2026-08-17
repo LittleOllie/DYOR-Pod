@@ -50,7 +50,7 @@ export async function WeeklySchedule() {
       <MobileScheduleList shows={weeklyShows} dateOverrides={dateOverrides} />
 
       <div className="hidden md:block">
-        <DesktopScheduleGrid shows={weeklyShows} />
+        <DesktopScheduleGrid shows={weeklyShows} dateOverrides={dateOverrides} />
       </div>
 
       <ScheduleInstallHelper />

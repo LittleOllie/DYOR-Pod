@@ -6,9 +6,11 @@ import { LinkButton } from "@/components/ui/Button";
 import { SpotifyListenButton } from "@/components/ui/SpotifyListenButton";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { StatusPill } from "@/components/ui/StatusPill";
+import { ShowCountdown } from "@/components/schedule/ShowCountdown";
 import { formatDayOfWeek, formatShowSchedule } from "@/lib/schedule/formatEventTime";
 import { getEventStatus } from "@/lib/schedule/getEventStatus";
 import { isShowHighlighted } from "@/lib/schedule/getScheduleHighlight";
+import type { DateScheduleOverride } from "@/lib/schedule/scheduleTypes";
 import {
   getScheduleCtaLabel,
   getShowCtaUrl,
@@ -21,19 +23,32 @@ import { Radio } from "lucide-react";
 
 type DesktopScheduleGridProps = {
   shows: Show[];
+  dateOverrides?: DateScheduleOverride[];
 };
 
 const accentLabels = Object.fromEntries(
   Object.entries(showAccentStyles).map(([key, value]) => [key, value.label]),
 ) as Record<Show["accent"], string>;
 
-function ProgrammeCard({ show, index, total }: { show: Show; index: number; total: number }) {
-  const status = getEventStatus(show);
+function ProgrammeCard({
+  show,
+  index,
+  total,
+  allShows,
+  dateOverrides,
+}: {
+  show: Show;
+  index: number;
+  total: number;
+  allShows: Show[];
+  dateOverrides: DateScheduleOverride[];
+}) {
+  const status = getEventStatus(show, new Date(), dateOverrides);
   const accent = accentLabels[show.accent];
   const ctaUrl = getShowCtaUrl(show);
   const ctaLabel = getScheduleCtaLabel(show, status);
   const platformLabel = getShowPlatformLabel(show);
-  const highlighted = isShowHighlighted(show);
+  const highlighted = isShowHighlighted(show, allShows, new Date(), dateOverrides);
   const imageWidth = show.imageWidth ?? 1122;
   const imageHeight = show.imageHeight ?? 1402;
 
@@ -105,6 +120,12 @@ function ProgrammeCard({ show, index, total }: { show: Show; index: number; tota
           </p>
         </div>
 
+        {highlighted && status === "upcoming" ? (
+          <div className="mt-4 max-w-xs">
+            <ShowCountdown show={show} dateOverrides={dateOverrides} />
+          </div>
+        ) : null}
+
         {ctaUrl && (
           <div className="mt-4">
             {show.platform === "spotify" && show.spotifyUrl ? (
@@ -127,7 +148,10 @@ function ProgrammeCard({ show, index, total }: { show: Show; index: number; tota
   );
 }
 
-export function DesktopScheduleGrid({ shows }: DesktopScheduleGridProps) {
+export function DesktopScheduleGrid({
+  shows,
+  dateOverrides = [],
+}: DesktopScheduleGridProps) {
   return (
     <div role="region" aria-label="Weekly DYOR programming">
       <div className="relative grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-5">
@@ -136,7 +160,14 @@ export function DesktopScheduleGrid({ shows }: DesktopScheduleGridProps) {
           aria-hidden="true"
         />
         {shows.map((show, index) => (
-          <ProgrammeCard key={show.id} show={show} index={index} total={shows.length} />
+          <ProgrammeCard
+            key={show.id}
+            show={show}
+            index={index}
+            total={shows.length}
+            allShows={shows}
+            dateOverrides={dateOverrides}
+          />
         ))}
       </div>
     </div>

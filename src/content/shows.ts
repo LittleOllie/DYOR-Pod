@@ -35,9 +35,9 @@ export const shows: Show[] = [
     id: "will-work-for-crypto",
     name: "Will Work for Crypto",
     shortName: "WWFC",
-    tagline: "Markets • Trading • TA",
+    tagline: "Markets • Trading • TA · Every Tuesday 6pm ET",
     description:
-      "Market analysis, trading perspectives, and technical analysis — charts, structure, and actionable crypto discussion.",
+      "Live every Tuesday at 6pm ET. Market analysis, trading perspectives, and technical analysis — charts, structure, and actionable crypto discussion.",
     identityCue: "chart",
     dayOfWeek: 2,
     startTime: "18:00",

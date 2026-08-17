@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { shows } from "@/content/shows";
+import { getHeaderStateForShows } from "@/lib/schedule/getHeaderState";
 import {
   getNextStatusTransitionMs,
   getResolvedEventStatus,
@@ -42,6 +43,18 @@ describe("WWFC static schedule", () => {
     const now = new Date("2025-01-06T12:00:00.000Z"); // Monday
     const next = getResolvedNextOccurrence(wwfc, { now });
     expect(next).not.toBeNull();
+  });
+});
+
+describe("WWFC featured as next Space", () => {
+  it("selects WWFC on Monday before Tuesday 6pm ET", () => {
+    const wwfc = shows.find((show) => show.id === "will-work-for-crypto")!;
+    const now = new Date("2025-01-06T17:00:00.000Z"); // Monday noon ET
+    const { featuredShow, startDate } = getHeaderStateForShows(shows, [], now);
+
+    expect(featuredShow.id).toBe("will-work-for-crypto");
+    expect(startDate).toBeDefined();
+    expect(getResolvedEventStatus(wwfc, { now })).toBe("upcoming");
   });
 });
 
